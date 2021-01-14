@@ -1,4 +1,4 @@
-package com.ices.discrete_event_simulation.entity;
+package com.ices.discrete_event_simulation.pojo;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

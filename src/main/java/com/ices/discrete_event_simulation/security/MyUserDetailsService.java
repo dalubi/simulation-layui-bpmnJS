@@ -2,7 +2,7 @@ package com.ices.discrete_event_simulation.security;
 
 import com.ices.discrete_event_simulation.mapper.UserInfoBeanMapper;
 
-import com.ices.discrete_event_simulation.entity.UserInfoBean;
+import com.ices.discrete_event_simulation.pojo.UserInfoBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.UserDetails;

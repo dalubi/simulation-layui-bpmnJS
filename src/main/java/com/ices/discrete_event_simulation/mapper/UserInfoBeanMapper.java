@@ -1,6 +1,6 @@
 package com.ices.discrete_event_simulation.mapper;
 
-import com.ices.discrete_event_simulation.entity.UserInfoBean;
+import com.ices.discrete_event_simulation.pojo.UserInfoBean;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
