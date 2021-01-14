@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>配置文件生成</title>
+    <link type="text/css" rel="stylesheet" href="../layui/css/layui.css">
+    <script type="text/javascript" src="../layui/layui.js"></script>
+</head>
+<body>
+<div style="margin-left: 20px ; margin-top: 20px ;width: 1200px">
+    <fieldset class="layui-elem-field">
+        <legend style="font-size: 40px">仿真配置文件生成</legend>
+
+        <div>
+            <fieldset class="layui-elem-field layui-field-title">
+                <div class="layui-field-box">
+                    <div >
+                        <fieldset class="layui-elem-field layui-field-title">
+                            <legend>联邦各成员中未完成的流程实例</legend>
+
+                            <table id="FederateInstance" lay-filter="FederateInstanceTableFilter">
+                            </table>
+
+                            <!--表头工具栏，每一行都有的按钮-->
+                            <script type="text/html" id="FederateInstanceBar">
+                                <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="schedule">查看进度</a>
+                            </script>
+
+                            <!--表格工具栏-->
+                            <script type="text/html" id="FederateInstanceToolBar">
+                                <div class="layui-btn-container">
+                                    <button class="layui-btn layui-btn-sm layui-btn-danger" lay-event="getInstanceInfoData">
+                                        当前FEDERATION所有流程实例信息更新
+                                    </button>
+                                </div>
+                            </script>
+
+                        </fieldset>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div>
+            <fieldset class="layui-elem-field layui-field-title">
+                <div class="layui-field-box">
+                    <div >
+                        <fieldset class="layui-elem-field layui-field-title">
+                            <legend>其他必要信息</legend>
+                            <br />
+                            <form class="layui-form layui-form-pane" action="">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label ">仿真时间</label>
+                                    <div class="layui-input-block" pane>
+                                        <input type="text" name="runtime" id="runtimeID" required  lay-verify="required" placeholder="标准是天数" autocomplete="off" class="layui-input">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <div class="layui-input-block" style="margin-left: 1000px">
+                                        <button class="layui-btn" lay-submit lay-filter="simuTime">提交</button>
+                                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </fieldset>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div>
+            <fieldset class="layui-elem-field layui-field-title">
+                <div class="layui-field-box">
+                    <div >
+
+                        <fieldset class="layui-elem-field layui-field-title">
+                            <legend>代码配置文件生成</legend>
+                            <br /><br />
+                            <blockquote class="layui-elem-quote" style="margin-top: 10px;margin-left: 50px;width: 1065px">
+                                <h2 style="font-size: 20px">操作描述</h2>
+                                <br/>
+                                <div>
+                                    <p style="font-size: 20px">&nbsp;&nbsp;&nbsp;&nbsp;1、确保初始化信息填充完整</p><br/>
+                                    <p style="font-size: 20px">&nbsp;&nbsp;&nbsp;&nbsp;2、确保仿真成员的流程实例无待编辑任务</p><br />
+                                    <p style="font-size: 20px">&nbsp;&nbsp;&nbsp;&nbsp;3、确保其他必要信息填写完整</p><br/>
+                                    <p style="font-size: 20px">&nbsp;&nbsp;&nbsp;&nbsp;4、点击下方配置文件生成按钮，生成离散事件仿真代码的配置文件</p><br/>
+                                </div>
+                            </blockquote>
+                            <br />
+                            <form class="layui-form layui-form-pane" action="">
+                                <div class="layui-form-item">
+                                    <div class="layui-input-block" style="margin-left: 900px">
+                                        <button class="layui-btn layui-btn-normal" lay-submit lay-filter="downloadXML">下载离散事件仿真配置文件</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </fieldset>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+    </fieldset>
+
+
+
+    <script>
+        //头部工具栏
+        layui.use(['jquery', 'layer','table'],function () {
+            let table = layui.table;
+            let form = layui.form;
+            let $ = layui.jquery;
+
+            let layer = layui.layer;
+            //bpmnInstance 的操作代码
+            table.render({
+                elem:"#FederateInstance",//elem绑定id属性值
+                url:"/activiti/getAllBPMNInstance",//后台数据接口
+                page: false ,//开启分页
+                cols:[[
+                    {field: 'DefinitionKey', title: '联邦成员名称', fixed: 'left'}
+                    ,{field:'currentTask',title:'当前流程进行到的任务'}
+                    ,{field:'ProcessInstanceId',title:'流程实例ID'}
+                    ,{field:'操作',title:'操作',toolbar:"#FederateInstanceBar"}
+                ]],
+                toolbar:"#FederateInstanceToolBar"
+            });
+
+            //提交仿真时间  /generateXML/runtime
+            form.on('submit(simuTime)', function(data){
+                let Info = {
+                    "runtime":data.field.runtime
+                };
+                $.ajax({
+                    url:"/generateXML/runtime",
+                    type:"POST",
+                    dataType: 'json',
+                    data:JSON.stringify(Info),
+                    contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                    success:function(result){
+                        console.log(result);
+                        //把obj类型转化成json类型的字符串
+                        let resJSONStr = JSON.stringify(result);
+                        let resJSON = JSON.parse(resJSONStr);
+                        layer.msg(resJSON.obj);
+                    }
+                });
+                return false;
+            });
+
+            //下载xml
+            form.on('submit(downloadXML)', function(data){
+                alert("下载xml");
+                return false;
+            });
+
+        });
+    </script>
+</div>
+</body>
+</html>

@@ -1,12 +1,12 @@
 package com.ices.discrete_event_simulation.controller.pageInfoController;
 
-import com.ices.des_simulation.entity.Federate;
-import com.ices.des_simulation.entity.FederateObject;
-import com.ices.des_simulation.mapper.FederateMapMapper;
-import com.ices.des_simulation.mapper.FederateMapper;
-import com.ices.des_simulation.mapper.FederateObjectMapper;
-import com.ices.des_simulation.util.AjaxResponse;
-import com.ices.des_simulation.util.GlobalConfig;
+import com.ices.discrete_event_simulation.entity.Federate;
+import com.ices.discrete_event_simulation.entity.FederateObject;
+import com.ices.discrete_event_simulation.mapper.FederateMapMapper;
+import com.ices.discrete_event_simulation.mapper.FederateMapper;
+import com.ices.discrete_event_simulation.mapper.FederateObjectMapper;
+import com.ices.discrete_event_simulation.util.AjaxResponse;
+import com.ices.discrete_event_simulation.util.GlobalConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

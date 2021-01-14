@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加一个外部事件</title>
+    <link type="text/css" rel="stylesheet" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+</head>
+<body>
+<div >
+
+    <fieldset class="layui-elem-field layui-field-title" style="width: 480px;margin-left: 10px;margin-right: 10px;margin-top: 10px">
+        <legend>添加外部事件</legend>
+        <br />
+
+        <form class="layui-form" id="formid" action="">
+            <br />
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width: 200px">设置外部事件名称：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="externalEventName" required  lay-verify="required" placeholder="请输入英文" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width: 200px">Event作用的联邦成员名：</label>
+                <div class="layui-input-inline">
+                    <select name="tofederate" lay-verify="required" lay-filter="federateFilter" id="federateId">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item ">
+                <label class="layui-form-label" style="width: 200px">设置外部事件编号：</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="externalEventId" name="externalEventId" required  lay-verify="required" placeholder="设置外部事件的编号" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width: 200px">选择作用范围：</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="action_tpye" value="1" title="联邦成员">
+                    <input type="radio" name="action_tpye" value="2" title="实例对象" checked>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width: 200px">设置外部事件概率：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="probability" required  lay-verify="required" placeholder="%" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+
+            <br />
+            <div class="layui-form-item" style="margin-left: 140px">
+                <div class="layui-input-block">
+                    <button class="layui-btn layui-btn-normal" lay-submit lay-filter="formExternalEvent">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+
+
+    </fieldset>
+
+
+
+
+</div>
+<script>
+    layui.use(['jquery', 'layer','table'],function () {
+        let $ = layui.jquery;
+        let form = layui.form;
+        let layer = layui.layer;
+
+        $.ajax({
+            url:"/federateObjectPage/getAllFederateNames",
+            type:"POST",
+            dataType: 'json',
+            data:"",
+            contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+            success:function(result){
+                //把obj类型转化成json类型的字符串
+                let resJSONStr = JSON.stringify(result);
+                let resJSON = JSON.parse(resJSONStr);
+
+                let option = '';
+                for(let i=0;i<resJSON.obj.length;i++){
+                    //循环获取返回值，并组装成html代码
+                    option +="<option value='"+resJSON.obj[i]["federate"]+"'>"+resJSON.obj[i]["federate"]+"</option>";
+                }
+                $("#federateId").html("");
+                $("#federateId").append(option);
+                form.render();
+            }
+        });
+
+
+        let table = layui.table;
+
+        form.on('submit(formExternalEvent)', function(data){
+            var formId = "#formid";
+            let ExternalEventData = $(formId).serializeArray();
+            $.ajax({
+                url:"/externalEvent/addExternalEventInfo",
+                type:"post",
+                dataType:"text",
+                data: ExternalEventData,
+                success:function(result){
+                }
+            });
+        });
+    });
+
+
+</script>
+</body>
+</html>

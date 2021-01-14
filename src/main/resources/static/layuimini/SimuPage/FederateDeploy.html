@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>生命周期实例部署</title>
+    <link type="text/css" rel="stylesheet" href="../layui/css/layui.css">
+    <script type="text/javascript" src="../layui/layui.js"></script>
+</head>
+<body>
+<div style="margin-left: 20px ; margin-top: 20px ;width: 1200px">
+    <fieldset class="layui-elem-field">
+        <legend style="font-size: 40px">选择仿真并部署仿真实例</legend>
+
+        <div>
+            <fieldset class="layui-elem-field layui-field-title">
+                <div class="layui-field-box">
+                    <div >
+                        <fieldset class="layui-elem-field layui-field-title">
+                            <legend>选择部署仿真联邦成员BPMN图</legend>
+
+                            <table id="FederateDeploy" lay-filter="FederateDeployTableFilter">
+                            </table>
+
+                            <!--表头工具栏，每一行都有的按钮-->
+                            <script type="text/html" id="FederateDeployBar">
+                                <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="deployAndCreateInstance">部署BPMN并创建实例</a>
+                            </script>
+
+                            <!--表格工具栏-->
+                            <script type="text/html" id="FederateDeployToolBar">
+                                <div class="layui-btn-container">
+                                    <button class="layui-btn layui-btn-sm layui-btn-danger" lay-event="getBPMNInfoData">
+                                        更新仿真成员BPMN信息
+                                    </button>
+                                </div>
+                            </script>
+
+                        </fieldset>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div>
+            <fieldset class="layui-elem-field layui-field-title">
+                <div class="layui-field-box">
+                    <div >
+                        <fieldset class="layui-elem-field layui-field-title">
+                            <legend>仿真联邦成员未完成的流程实例</legend>
+
+                            <table id="FederateInstance" lay-filter="FederateInstanceTableFilter">
+                            </table>
+
+                            <!--表头工具栏，每一行都有的按钮-->
+                            <script type="text/html" id="FederateInstanceBar">
+                                <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="choose">继续编辑</a>
+                                <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="schedule">查看进度</a>
+                                <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="delete">删除实例</a>
+                            </script>
+
+                            <!--表格工具栏-->
+                            <script type="text/html" id="FederateInstanceToolBar">
+                                <div class="layui-btn-container">
+                                    <button class="layui-btn layui-btn-sm layui-btn-danger" lay-event="getInstanceInfoData">
+                                        更新FEDERATE流程实例信息
+                                    </button>
+                                </div>
+                            </script>
+
+                        </fieldset>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div>
+            <fieldset class="layui-elem-field layui-field-title">
+                <div class="layui-field-box">
+                    <div >
+                        <fieldset class="layui-elem-field layui-field-title">
+                            <legend>已完成的流程实例</legend>
+
+                            <table id="FederateCompletedInstance" lay-filter="FederateCompletedInstanceTableFilter">
+                            </table>
+                        </fieldset>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+    </fieldset>
+
+    <script>
+        //头部工具栏
+        layui.use(['jquery', 'layer','table'],function () {
+            let table = layui.table;
+            let $ = layui.jquery;
+
+            let layer = layui.layer;
+
+
+
+
+            //bpmnDeploy 的操作代码 --------------------------------------------------
+            table.render({
+                elem:"#FederateDeploy",//elem绑定id属性值
+                url:"/activiti/getAllBPMNDeploy",//后台数据接口
+                page: false ,//开启分页
+                cols:[[
+                    {field: 'federateName', title: '联邦成员名称', fixed: 'left'}
+                    ,{field:'hasInstance',title:'是否存在流程实例'}
+                    ,{field:'操作',title:'操作',toolbar:"#FederateDeployBar"}
+                ]],
+                toolbar:"#FederateDeployToolBar"
+            });
+
+            table.on('toolbar(FederateDeployTableFilter)',function (obj) {
+                let eventName = obj.event;
+                //判断事件名，执行对应的代码
+                switch(eventName){
+                    case "getBPMNInfoData":
+                        table.render({
+                            elem:"#FederateDeploy",//elem绑定id属性值
+                            url:"/activiti/getAllBPMNDeploy",//后台数据接口
+                            page: false ,//开启分页
+                            cols:[[
+                                {field: 'federateName', title: '联邦成员名称', fixed: 'left'}
+                                ,{field:'hasInstance',title:'是否存在流程实例'}
+                                ,{field:'操作',title:'操作',toolbar:"#FederateDeployBar"}
+                            ]],
+                            toolbar:"#FederateDeployToolBar"
+                        });
+                        break;
+                }
+            });
+
+
+            table.on("tool(FederateDeployTableFilter)",function (obj) {
+                //得到当前操作行的相关信息，这是一个json，或者javascript的对象
+                let tr = obj.data;
+                //得到事件名
+                let eventName = obj.event;
+                let Info = {
+                    "federate":tr.federateName
+                };
+                //判断事件名，执行对应方法
+                if(eventName=='deployAndCreateInstance'){
+                    //ajax发送federate的名称给后台
+                    //后台根据名称创建流程实例
+                    $.ajax({
+                        url:"/activiti/deployAndCreateInstance",
+                        type:"POST",
+                        dataType: 'json',
+                        data:JSON.stringify(Info),
+                        contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                        success:function(result){
+                            //把obj类型转化成json类型的字符串
+                            let resJSONStr = JSON.stringify(result);
+                            let resJSON = JSON.parse(resJSONStr);
+                            msg = resJSON.obj;
+                        }
+                    });
+                }
+            });
+
+
+            //bpmnInstance 的操作代码  --------------------------------------------------
+            table.render({
+                elem:"#FederateInstance",//elem绑定id属性值
+                url:"/activiti/getAllBPMNInstance",//后台数据接口
+                page: false ,//开启分页
+                cols:[[
+                    {field: 'DefinitionKey', title: '联邦成员名称', fixed: 'left'}
+                    ,{field:'currentTask',title:'当前流程进行到的任务'}
+                    ,{field:'ProcessInstanceId',title:'流程实例ID'}
+                    ,{field:'操作',title:'操作',toolbar:"#FederateInstanceBar"}
+                ]],
+                toolbar:"#FederateInstanceToolBar"
+            });
+
+            table.on('toolbar(FederateInstanceTableFilter)',function (obj) {
+                let eventName = obj.event;
+                //判断事件名，执行对应的代码
+                switch(eventName){
+                    case "getInstanceInfoData":
+                        table.render({
+                            elem:"#FederateInstance",//elem绑定id属性值
+                            url:"/activiti/getAllBPMNInstance",//后台数据接口
+                            page: false ,//开启分页
+                            cols:[[
+                                {field: 'DefinitionKey', title: '联邦成员名称', fixed: 'left'}
+                                ,{field:'currentTask',title:'当前流程进行到的任务'}
+                                ,{field:'ProcessInstanceId',title:'流程实例ID'}
+                                ,{field:'操作',title:'操作',toolbar:"#FederateInstanceBar"}
+                            ]],
+                            toolbar:"#FederateInstanceToolBar"
+                        });
+                        break;
+                }
+            });
+
+
+            table.on("tool(FederateInstanceTableFilter)",function (obj) {
+                //得到当前操作行的相关信息，这是一个json，或者javascript的对象
+                let tr = obj.data;
+                //得到事件名
+                let eventName = obj.event;
+                let Info = {
+                    "ProcessInstanceId":tr.ProcessInstanceId
+                };
+                //判断事件名，执行对应方法
+                if(eventName=='choose'){
+                    //绑定流程实例
+                    layer.confirm("您确认要选择流程实例:"+tr.ProcessInstanceId,function(index){
+                        $.ajax({
+                            url:"/activiti/chooseFederateInstance",
+                            type:"POST",
+                            dataType: 'json',
+                            data:JSON.stringify(Info),
+                            contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                            success:function(result){
+                                //把obj类型转化成json类型的字符串
+                                let resJSONStr = JSON.stringify(result);
+                                let resJSON = JSON.parse(resJSONStr);
+                                msg = resJSON.obj;
+                            }
+                        });
+                        //关闭弹出层(index)是弹出层的下标
+                        layer.close(index);
+                    });
+                }else if(eventName=='delete'){
+                    //删除流程实例
+                    //confirm 确认方法
+                    layer.confirm("您确认要删除",function(index){
+                        //删除指定tr
+                        obj.del();
+
+                        $.ajax({
+                            url:"/activiti/deleteFederateInstance",
+                            type:"POST",
+                            dataType: 'json',
+                            data:JSON.stringify(Info),
+                            contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                            success:function(result){
+                                //把obj类型转化成json类型的字符串
+                                let resJSONStr = JSON.stringify(result);
+                                let resJSON = JSON.parse(resJSONStr);
+                                msg = resJSON.obj;
+                            }
+                        });
+
+                        //关闭弹出层(index)是弹出层的下标
+                        layer.close(index);
+                    });
+                }else {
+                    $.ajax({
+                        url: '/activitiHistory/setParam',
+                        type: 'POST',
+                        data: JSON.stringify(Info),
+                        dataType: 'json',
+                        contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                        success: function (result) {
+                            //把obj类型转化成json类型的字符串
+                            let resJSONStr = JSON.stringify(result);
+                            let resJSON = JSON.parse(resJSONStr);
+                            let msg = resJSON.obj;
+
+                            //打开查看进度的bpmn
+                            layer.open({
+                                type:2,
+                                title:"联邦成员选中后的初始化",
+                                area:['1000px','700px'],
+                                content:["../../resources/bpmnjs/dist/index.html",'no']
+                            });
+                        }
+                    });
+                }
+            });
+
+            table.render({
+                elem:"#FederateCompletedInstance",//elem绑定id属性值
+                url:"/activiti/getCompletedInstance",//后台数据接口
+                page: false ,//开启分页
+                cols:[[
+                    {field: 'DefinitionKey', title: '联邦成员名称', fixed: 'left'}
+                ]]
+            });
+
+        });
+    </script>
+</div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.activiti.org/test" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="platform" name="platform" isExecutable="true" isClosed="false" processType="None">
+    <userTask id="Activity_0moczfa" name="接收顾客上传信息">
+      <documentation>send_waitingInfo,null</documentation>
+    </userTask>
+    <sequenceFlow id="seca7eac3-dc69-40f3-9f72-11bbb9f1116b" sourceRef="Activity_0moczfa" targetRef="Event_075yvqo"></sequenceFlow>
+    <endEvent id="Event_075yvqo"></endEvent>
+    <startEvent id="see573505-04a0-4191-824d-2c766e327be3"></startEvent>
+    <sequenceFlow id="s4da82160-dc66-40f0-9937-01c0dc4af0ed" sourceRef="see573505-04a0-4191-824d-2c766e327be3" targetRef="Activity_0moczfa"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_platform">
+    <bpmndi:BPMNPlane bpmnElement="platform" id="BPMNPlane_platform">
+      <bpmndi:BPMNShape bpmnElement="Activity_0moczfa" id="BPMNShape_Activity_0moczfa">
+        <omgdc:Bounds height="60.0" width="100.0" x="300.0" y="150.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Event_075yvqo" id="BPMNShape_Event_075yvqo">
+        <omgdc:Bounds height="35.0" width="35.0" x="450.0" y="165.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="see573505-04a0-4191-824d-2c766e327be3" id="BPMNShape_see573505-04a0-4191-824d-2c766e327be3">
+        <omgdc:Bounds height="35.0" width="35.0" x="220.0" y="165.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="seca7eac3-dc69-40f3-9f72-11bbb9f1116b" id="BPMNEdge_seca7eac3-dc69-40f3-9f72-11bbb9f1116b">
+        <omgdi:waypoint x="400.0" y="180.0"></omgdi:waypoint>
+        <omgdi:waypoint x="412.0" y="180.0"></omgdi:waypoint>
+        <omgdi:waypoint x="412.0" y="180.0"></omgdi:waypoint>
+        <omgdi:waypoint x="450.0" y="182.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="s4da82160-dc66-40f0-9937-01c0dc4af0ed" id="BPMNEdge_s4da82160-dc66-40f0-9937-01c0dc4af0ed">
+        <omgdi:waypoint x="255.0" y="182.0"></omgdi:waypoint>
+        <omgdi:waypoint x="262.0" y="180.0"></omgdi:waypoint>
+        <omgdi:waypoint x="262.0" y="180.0"></omgdi:waypoint>
+        <omgdi:waypoint x="300.0" y="180.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

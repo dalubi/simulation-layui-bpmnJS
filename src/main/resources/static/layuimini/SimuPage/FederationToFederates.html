@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>仿真整体流程图转仿真成员生命周期图</title>
+    <link type="text/css" rel="stylesheet" href="../layui/css/layui.css">
+    <script type="text/javascript" src="../layui/layui.js"></script>
+</head>
+<body>
+
+<div style="margin-left: 20px ; margin-top: 20px ;width: 1200px">
+    <fieldset class="layui-elem-field">
+        <legend style="font-size: 40px">仿真流程转各仿真成员生命周期图</legend>
+
+        <div id="bpmnFile">
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>已上传BPMN图和已绘制完成的BPMN图</legend>
+                <div class="layui-field-box">
+                    <table id="Federations" lay-filter="FederationsTableFilter">
+                    </table>
+
+                    <!--表头工具栏，每一行都有的按钮-->
+                    <script type="text/html" id="FederationBar">
+                        <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="parseFederation">解析BPMN文件</a>
+                        <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="deleteFederation">删除BPMN文件</a>
+                    </script>
+
+                </div>
+            </fieldset>
+        </div>
+
+        <br />
+
+        <div id="parseBPMN">
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>查看已有Federate生命周期图信息</legend>
+                <br />
+                <div class="layui-field-box">
+                    <blockquote class="layui-elem-quote" style="margin-top: 10px;margin-left: 50px;width: 1065px">
+                        <h2 style="font-size: 30px">操作描述</h2>
+                        <br/><br/>
+                        <div>
+                            <p style="font-size: 20px">&nbsp;&nbsp;&nbsp;&nbsp;1、FEDERATION的BPMN流程图解析之后，存在信息不完整的情况。</p><br/>
+                            <p style="font-size: 20px">&nbsp;&nbsp;&nbsp;&nbsp;2、点击"下载"，获得算法解析的每个FEDERATE的流程图</p><br />
+                            <p style="font-size: 20px">&nbsp;&nbsp;&nbsp;&nbsp;3、使用Eclipse中的工具重新编辑完善生命周期后，选择"重传"每个FEDERATE完整的生命周期图</p><br/>
+                            <p style="font-size: 20px">&nbsp;&nbsp;&nbsp;&nbsp;4、点击"查看"可以在线查看这个生命周期图，点击"删除"，可以永久删除这个生命周期图</p><br/>
+                            <p style="font-size: 20px">&nbsp;&nbsp;&nbsp;&nbsp;5、在重传之后认为仿真联邦成员的信息已经完整了，在最后一栏信息完整进行编辑，便于记忆</p>
+                        </div>
+                    </blockquote>
+                    <br />
+
+                    <table id="federates" lay-filter="federatesTableFilter"></table>
+
+                    <!--表头工具栏，每一行都有的按钮-->
+                    <script type="text/html" id="FederateBar">
+                        <a class="layui-btn layui-btn-warm layui-btn-sm" lay-event="downloadBPMN">下载</a>
+                        <a class="layui-btn layui-btn-sm" lay-event="reuploadBPMN">重传</a>
+                        <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="viewBPMN">查看</a>
+                        <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="deleteBPMN">删除</a>
+                    </script>
+                </div>
+            </fieldset>
+        </div>
+
+
+
+
+
+    </fieldset>
+</div>
+
+<script>
+    //头部工具栏
+    layui.use(['jquery', 'layer','table'],function () {
+        let table = layui.table;
+        let $ = layui.jquery;
+
+        //federates的操作代码
+        //获取federates的表数据
+        table.render({
+            elem:"#federates",//elem绑定id属性值
+            url:"/getAllFederates",//后台数据接口
+            cols:[[
+                {field: 'federate', title: 'Federate的名称', fixed: 'left'}
+                ,{field: "操作",title:'操作',toolbar:"#FederateBar"}//设置表头工具栏
+                ,{field:'reupload',title:'信息是否完整',edit:true}
+            ]],
+        });
+
+        //监听单元格编辑事件
+        //设置标记信息填充是否完成
+        //edit属性，表头设置
+        table.on('edit(federatesTableFilter)',function (obj) {
+            //获取改变后的值
+            let value = obj.value;
+            //获得改变之前的值
+            let data = obj.data;
+            //得到修改的字段名
+            let field = obj.field;
+
+            let uploadData = {
+                "federate":data.federate,
+                "reupload":value
+            }
+
+            $.ajax({
+                url:"/setFederateInfo",
+                type:"POST",
+                dataType: 'json',
+                data:JSON.stringify(uploadData),
+                contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                success:function(result){
+                    //把obj类型转化成json类型的字符串
+                    let resJSONStr = JSON.stringify(result);
+                    let resJSON = JSON.parse(resJSONStr);
+                    layer.open({
+                        type:0,
+                        title:"操作详情",
+                        content:resJSON.obj
+                    });
+                }
+            });
+        });
+
+        table.on("tool(federatesTableFilter)",function (obj) {
+            //得到当前操作行的相关信息，这是一个json，或者javascript的对象
+            let tr = obj.data;
+            //得到事件名
+            let eventName = obj.event;
+            let Info = {
+                "federate":tr.federate
+            }
+            //判断事件名，执行对应方法
+            switch (eventName) {
+                case 'downloadBPMN':
+                    alert("下载功能");
+                    break;
+                case 'reuploadBPMN':
+                    alert("重传");
+                    break;
+                case 'viewBPMN':
+                    //alert(Info.federate.toString());
+                    //正确
+                    // layer.open({
+                    //     type:2,
+                    //     title:"联邦成员选中后的初始化",
+                    //     area:['900px','600px'],
+                    //     content:["../../resources/bpmnjs/dist/index.html",'no']
+                    // });
+                    $.ajax({
+                        url:"/bpmnFederate/viewBPMN",
+                        type:"POST",
+                        dataType: 'json',
+                        data:JSON.stringify(Info),
+                        contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                        success:function(result){
+                            //把obj类型转化成json类型的字符串
+                            let resJSONStr = JSON.stringify(result);
+                            let resJSON = JSON.parse(resJSONStr);
+                            layer.open({
+                                type:2,
+                                title:"bpmn展示",
+                                area:['900px','600px'],
+                                content:["../../resources/bpmnjs/dist/index.html",'no']
+                            });
+                        }
+                    });
+                    break;
+                case 'deleteBPMN':
+                    //删除
+                    //传递文件名
+                    //ajax删除文件，和数据库
+                    break;
+            }
+        });
+
+
+        //federation的操作代码
+        //获取federations的表数据
+        table.render({
+            elem:"#Federations",//elem绑定id属性值
+            url:"/getAllFederations",//后台数据接口
+            page: false ,//开启分页
+            cols:[[
+                {field: 'federationName', title: '仿真BPMN文件名', fixed: 'left'}
+                ,{field: "操作",title:'操作',toolbar:"#FederationBar"}//设置表头工具栏
+            ]],
+        });
+
+
+        var layer = layui.layer;
+
+        //federation的表的行按钮，尚未完成
+        table.on("tool(FederationsTableFilter)",function (obj) {
+            //得到当前操作行的相关信息，这是一个json，或者javascript的对象
+            let tr = obj.data;
+            //console.log(tr);
+            //得到事件名
+            let eventName = obj.event;
+
+            let bpmnFileName = {
+                "bpmnFile":tr.federationName
+            }
+
+            //判断事件名，执行对应方法
+            if(eventName=='deleteFederation'){
+                //confirm 确认方法
+                layer.confirm("您确认要删除",function(index){
+                    //删除指定tr
+                    obj.del();
+                    //告诉后台要删除哪个文件
+
+                    $.ajax({
+                        url:"/deleteFederationBpmn",
+                        type:"POST",
+                        dataType: 'json',
+                        data:JSON.stringify(bpmnFileName),
+                        contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                        success:function(result){
+                            //把obj类型转化成json类型的字符串
+                            let resJSONStr = JSON.stringify(result);
+                            let resJSON = JSON.parse(resJSONStr);
+                            layer.open({
+                                type:0,
+                                title:"操作详情",
+                                content:resJSON.obj
+                            });
+                        }
+                    });
+
+                    //关闭弹出层(index)是弹出层的下标
+                    layer.close(index);
+                });
+            }else{
+                //federation解析
+                //提供文件名，即可
+                //alert(tr.federationName);
+                //告诉后台要解析哪个文件
+
+                //confirm 确认方法
+                layer.confirm("您确认要解析",function(index){
+                    $.ajax({
+                        url:"/parseFederationBpmn",
+                        type:"POST",
+                        dataType: 'json',
+                        data:JSON.stringify(bpmnFileName),
+                        contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                        success:function(result){
+                            //把obj类型转化成json类型的字符串
+                            let resJSONStr = JSON.stringify(result);
+                            let resJSON = JSON.parse(resJSONStr);
+                            layer.open({
+                                type:0,
+                                title:"操作详情",
+                                content:resJSON.obj
+                            });
+                        }
+                    });
+
+                    //关闭弹出层(index)是弹出层的下标
+                    layer.close(index);
+                });
+
+            }
+        });
+
+        // //监听单元格编辑事件
+        // //federation别名的编辑事件
+        // //edit属性，表头设置
+        // table.on('edit(FederationsTableFilter)',function (obj) {
+        //     //获取改变后的值
+        //     let value = obj.value;
+        //     //获得改变之前的值
+        //     let data = obj.data;
+        //     //得到修改的字段名
+        //     let field = obj.field;
+        //
+        //     //别名的上传
+        //     //定义json数据
+        //     let nick = {
+        //         "federationName":data.federationName,
+        //         "nickName":value
+        //     }
+        //     //将json转化为字符串，方便在ajax中传递
+        //     // let nickJsonStr = JSON.stringify(nick);
+        //
+        //     $.ajax({
+        //         url:"/setBPMNNickName",
+        //         type:"POST",
+        //         dataType: 'json',
+        //         data:JSON.stringify(nick),
+        //         contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+        //         success:function(result){
+        //             //把obj类型转化成json类型的字符串
+        //             let resJSONStr = JSON.stringify(result);
+        //             let resJSON = JSON.parse(resJSONStr);
+        //             layer.open({
+        //                 type:0,
+        //                 title:"操作详情",
+        //                 content:resJSON.obj
+        //             });
+        //         }
+        //     });
+        //     //另一中alert的方式
+        //     //layer.msg("将"+data.federationName+"的别名设置为"+value);
+        // });
+    });
+</script>
+</body>
+</html>

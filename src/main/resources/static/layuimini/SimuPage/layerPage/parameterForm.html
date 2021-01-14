@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>交互类信息表单</title>
+    <link type="text/css" rel="stylesheet" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+</head>
+<body>
+<form class="layui-form layui-form-pane" action="" method="post">
+    <br />
+    <div class="layui-form-item">
+        <label class="layui-form-label">参数名称</label>
+        <div class="layui-input-inline">
+            <input type="text" name="parameterName" required  lay-verify="required" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">参数类型</label>
+        <div class="layui-input-block">
+            <input type="radio" name="parameterType" value="string" title="字符串">
+            <input type="radio" name="parameterType" value="int" title="整数">
+            <input type="radio" name="parameterType" value="double" title="浮点数">
+        </div>
+    </div>
+    <div class="layui-form-item" style="margin-left: 100px">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    //Demo
+    layui.use(['form','jquery'], function(){
+        var form = layui.form;
+        let $ = layui.jquery;
+
+        form.on('submit(formDemo)', function(data){
+            //console.log(data.field) //当前容器的全部表单字段，名值对形式：{name: value}
+            //console.log(data.field.parameterName);
+            parameterInfo={
+                "parameterName":data.field.parameterName,
+                "parameterType":data.field.parameterType
+            };
+
+            $.ajax({
+                url:"/addParameter",
+                type:"POST",
+                dataType: 'json',
+                data:JSON.stringify(parameterInfo),
+                contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                success:function(result){
+                    //把obj类型转化成json类型的字符串
+                    let resJSONStr = JSON.stringify(result);
+                    let resJSON = JSON.parse(resJSONStr);
+                    layer.msg(resJSON.obj);
+                }
+            });
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+    });
+</script>
+</body>
+</html>

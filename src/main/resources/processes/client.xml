@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://www.activiti.org/test" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test" id="m1586786943177" name="">
+ <process id="client" name="client" isExecutable="true" isClosed="false" processType="None">
+<startEvent id="StartEvent_05773h2" />
+<sequenceFlow id="sbd2b2720-ed0a-4f8e-b095-d219f2e0e9cc" sourceRef="StartEvent_05773h2" targetRef="Activity_00pxxog"/>
+<userTask id="Activity_00pxxog" name="泊松分布，顾客到来"><documentation id="s5af01a55-8c8d-438c-821f-978ea33ffdce">null,client_enter</documentation></userTask>
+<sequenceFlow id="s3045d468-3853-465d-aa4f-0f63336e2227" sourceRef="Activity_00pxxog" targetRef="Activity_1xbc06s"/>
+<parallelGateway gatewayDirection="Unspecified" id="Gateway_0nrpago" />
+<sequenceFlow id="sfa96d943-fd1c-4c1a-963a-d70cb770045a" sourceRef="Gateway_0nrpago" targetRef="Activity_0pe3zwc"/>
+<sequenceFlow id="s80662053-0831-411c-81e4-870eba03de91" sourceRef="Gateway_0nrpago" targetRef="Activity_093cvk6"/>
+<userTask id="Activity_02ey8ic" name="按概率众包上传(存在多种发错情况)"><documentation id="s2d6186a8-b9e3-4783-b66e-f6c74a2fbea7">null,send_waitingInfo</documentation></userTask>
+<sequenceFlow id="s0321d5cc-6f50-4817-8011-88bd4832f4c5" sourceRef="Activity_02ey8ic" targetRef="Activity_1u5ilyu"/>
+<userTask id="Activity_0pe3zwc" name="排队，记录开始排队时间"><documentation id="se01d5514-80d1-48c4-ade2-8f82b2f24df7">null,client_enter_queue</documentation></userTask>
+<sequenceFlow id="sf67e05fb-0d71-4ce5-a800-4f9d9f5a79aa" sourceRef="Activity_0pe3zwc" targetRef="Activity_02ey8ic"/>
+<userTask id="Activity_093cvk6" name="不排队，直接离开"><documentation id="sa04f0394-4c20-4d23-bee6-886e5674220f">null,null</documentation></userTask>
+<sequenceFlow id="s72299b40-6878-4609-bdb3-570815aedcf9" sourceRef="Activity_093cvk6" targetRef="Event_0n8m41p"/>
+<userTask id="Activity_1xbc06s" name="判断是否排队"><documentation id="sf76f3252-5927-4061-8463-f6cbac290af4">queue_state,null</documentation></userTask>
+<sequenceFlow id="sb496ef71-1616-43a0-948a-b6c157674ee1" sourceRef="Activity_1xbc06s" targetRef="Gateway_0nrpago"/>
+<userTask id="Activity_1u5ilyu" name="顾客离开"><documentation id="s65c310d4-fd71-4045-b23d-35ed560fe3e5">client_leave_queue,null</documentation></userTask>
+<sequenceFlow id="s429c46a8-7fb8-4e5c-bee0-66db61293226" sourceRef="Activity_1u5ilyu" targetRef="Event_0n12d2o"/>
+<endEvent id="Event_0n12d2o" />
+<endEvent id="Event_0n8m41p" />
+	</process>
+</definitions>

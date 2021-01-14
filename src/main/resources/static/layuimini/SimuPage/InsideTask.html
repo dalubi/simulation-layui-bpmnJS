@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>生命周期实例部署</title>
+    <link type="text/css" rel="stylesheet" href="../layui/css/layui.css">
+    <script type="text/javascript" src="../layui/layui.js"></script>
+</head>
+<body>
+<div style="margin-left: 20px ; margin-top: 20px ;width: 1200px">
+    <fieldset class="layui-elem-field">
+        <legend style="font-size: 40px">内部任务处理</legend>
+
+        <div>
+            <fieldset class="layui-elem-field layui-field-title">
+                <div class="layui-field-box">
+                    <div >
+                        <fieldset class="layui-elem-field layui-field-title">
+                            <legend>选择内部任务编辑</legend>
+
+                            <table id="insideTask" lay-filter="insideTaskTableFilter">
+                            </table>
+
+                            <!--表头工具栏，每一行都有的按钮-->
+                            <script type="text/html" id="insideTaskBar">
+                                <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="choose">选中编辑</a>
+                                <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="delete">删除任务</a>
+                            </script>
+
+                            <!--表格工具栏-->
+                            <script type="text/html" id="insideTaskToolBar">
+                                <div class="layui-btn-container">
+                                    <button class="layui-btn layui-btn-sm layui-btn-danger" lay-event="getInsideTaskData">
+                                        更新内部任务
+                                    </button>
+                                </div>
+                            </script>
+
+                        </fieldset>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+    </fieldset>
+
+    <script>
+        //头部工具栏
+        layui.use(['jquery', 'layer','table'],function () {
+            let table = layui.table;
+            let $ = layui.jquery;
+            let layer = layui.layer;
+
+            //内部任务   --------------------------------------------------
+            table.render({
+                elem:"#insideTask",//elem绑定id属性值
+                url:"/insideTask/queryInsideTask",//后台数据接口
+                page: false ,//开启分页
+                cols:[[
+                    {field: 'InsidetaskId', title: '内部任务编号', fixed: 'left'}
+                    ,{field:'Information',title:'内部任务描述'}
+                    ,{field:'Iscomplete',title:'是否完成'}
+                    ,{field:'操作',title:'操作',toolbar:"#insideTaskBar"}
+                ]],
+                toolbar:"#insideTaskToolBar"
+            });
+
+            table.on('toolbar(insideTaskTableFilter)',function (obj) {
+                let eventName = obj.event;
+                //判断事件名，执行对应的代码
+                switch(eventName){
+                    case "getInsideTaskData":
+                        table.render({
+                            elem:"#insideTask",//elem绑定id属性值
+                            url:"/insideTask/queryInsideTask",//后台数据接口
+                            page: false ,//开启分页
+                            cols:[[
+                                {field: 'InsidetaskId', title: '内部任务编号', fixed: 'left'}
+                                ,{field:'Information',title:'内部任务描述'}
+                                ,{field:'Iscomplete',title:'是否完成'}
+                                ,{field:'操作',title:'操作',toolbar:"#insideTaskBar"}
+                            ]],
+                            toolbar:"#insideTaskToolBar"
+                        });
+                        break;
+                }
+            });
+
+            table.on("tool(insideTaskTableFilter)",function (obj) {
+                //得到当前操作行的相关信息，这是一个json，或者javascript的对象
+                let tr = obj.data;
+                //得到事件名
+                let eventName = obj.event;
+                let Info = {
+                    "InsidetaskId": tr.InsidetaskId
+                };
+                //判断事件名，执行对应方法
+                if (eventName == 'choose') {
+                    //绑定流程实例
+                    layer.confirm("您确认要选择编辑内部任务:" + tr.Information, function (index) {
+                        $.ajax({
+                            url: "/insideTask/setInsideTaskID",
+                            type: "POST",
+                            dataType: 'json',
+                            data: JSON.stringify(Info),
+                            contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                            success: function (result) {
+                                //把obj类型转化成json类型的字符串
+                                let resJSONStr = JSON.stringify(result);
+                                let resJSON = JSON.parse(resJSONStr);
+                                msg = resJSON.obj;
+                                layer.msg(msg);
+                            }
+                        });
+                        //关闭弹出层(index)是弹出层的下标
+                        layer.close(index);
+                    });
+                }
+            });
+        });
+    </script>
+</div>
+</body>
+</html>

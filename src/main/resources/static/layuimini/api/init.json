@@ -1,0 +1,113 @@
+{
+  "homeInfo": {
+    "title": "首页",
+    "href对应的应该是index对应的位置信息":"",
+    "href": "layuimini/page/welcome-1.html?t=1"
+  },
+  "logoInfo": {
+    "title": "BPMN SIMU",
+    "image": "layuimini/images/logo.png",
+    "href": ""
+  },
+  "menuInfo": [
+    {
+      "title": "常规管理",
+      "icon": "fa fa-address-book",
+      "href": "",
+      "target": "_self",
+      "child": [
+        {
+          "title": "流程绘制或上传",
+          "href": "layuimini/SimuPage/bpmnDrawOrUpload.html",
+          "icon": "fa fa-tachometer",
+          "target": "_self"
+        },
+        {
+          "title": "流程初步解析",
+          "href": "layuimini/SimuPage/FederationToFederates.html",
+          "icon": "fa fa-tachometer",
+          "target": "_self"
+        },
+        {
+          "title": "交互信息填充",
+          "href": "layuimini/SimuPage/interaction.html",
+          "icon": "fa fa-window-maximize",
+          "target": "_self"
+        },
+        {
+          "title": "初始化设置",
+          "href": "",
+          "icon": "fa fa-home",
+          "target": "_self",
+          "child": [
+            {
+              "title": "基础信息初始化",
+              "href": "layuimini/SimuPage/federateBasic.html",
+              "icon": "fa fa-tachometer",
+              "target": "_self"
+            },
+            {
+              "title": "进阶信息初始化",
+              "href": "layuimini/SimuPage/federateAdvance.html",
+              "icon": "fa fa-tachometer",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "生命周期管理",
+          "href": "",
+          "icon": "fa fa-calendar",
+          "target": "_self",
+          "child": [
+            {
+              "title": "部署生命周期实例",
+              "href": "layuimini/SimuPage/FederateDeploy.html",
+              "target": "_self"
+            },
+            {
+              "title": "过程内部任务处理",
+              "href": "layuimini/SimuPage/InsideTask.html",
+              "target": "_self"
+            },
+            {
+              "title": "仿真任务过程编辑",
+              "href": "layuimini/SimuPage/editLifeCycle.html",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "外部事件设置",
+          "href": "layuimini/SimuPage/ExternalEvent.html",
+          "icon": "fa fa-window-maximize",
+          "target": "_self"
+        },
+        {
+          "title": "配置文件生成",
+          "href": "layuimini/SimuPage/GenerateXML.html",
+          "icon": "fa fa-window-maximize",
+          "target": "_self"
+        },
+        {
+          "title": "仿真代码生成",
+          "href": "layuimini/SimuPage/fileToSimuCode.html",
+          "icon": "fa fa-window-maximize",
+          "target": "_self"
+        },
+        {
+          "title": "启动仿真系统",
+          "href": "layuimini/SimuPage/startSimulation.html",
+          "icon": "fa fa-window-maximize",
+          "target": "_self"
+        },
+        {
+          "title": "仿真运行状态",
+          "href": "layuimini/SimuPage/fileToSimuCode.html",
+          "icon": "fa fa-window-maximize",
+          "target": "_self"
+        }
+      ]
+    }
+  ]
+}

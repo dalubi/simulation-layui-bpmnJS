@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.activiti.org/test" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="store" name="store" isExecutable="true" isClosed="false" processType="None">
+    <userTask id="Activity_03wi8kv" name="商店欢迎顾客到来，发送队列信息">
+      <documentation>client_enter,queue_state</documentation>
+    </userTask>
+    <sequenceFlow id="s119f7c47-2de5-4b85-a0d0-ecf16ee85d64" sourceRef="Activity_03wi8kv" targetRef="Activity_09t7i4a"></sequenceFlow>
+    <userTask id="Activity_09t7i4a" name="顾客入队">
+      <documentation>client_enter_queue,null</documentation>
+    </userTask>
+    <sequenceFlow id="s4a505d62-93b5-463c-a786-142e9642bdcd" sourceRef="Activity_09t7i4a" targetRef="Activity_1pr9s2u"></sequenceFlow>
+    <userTask id="Activity_1pr9s2u" name="指数分布，服务结束,顾客出队">
+      <documentation>null,client_leave_queue</documentation>
+    </userTask>
+    <sequenceFlow id="s2710d242-5cc4-443b-9820-58599c20f3e2" sourceRef="Activity_1pr9s2u" targetRef="Event_1b8vmhe"></sequenceFlow>
+    <endEvent id="Event_1b8vmhe"></endEvent>
+    <startEvent id="sd844d43c-3e19-4532-a8fb-983fd4873bd9"></startEvent>
+    <sequenceFlow id="sc49dcb6b-b40c-45dc-acca-972ce2f05be7" sourceRef="sd844d43c-3e19-4532-a8fb-983fd4873bd9" targetRef="Activity_03wi8kv"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_store">
+    <bpmndi:BPMNPlane bpmnElement="store" id="BPMNPlane_store">
+      <bpmndi:BPMNShape bpmnElement="Activity_03wi8kv" id="BPMNShape_Activity_03wi8kv">
+        <omgdc:Bounds height="122.0" width="105.0" x="370.0" y="278.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Activity_09t7i4a" id="BPMNShape_Activity_09t7i4a">
+        <omgdc:Bounds height="60.0" width="100.0" x="520.0" y="309.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Activity_1pr9s2u" id="BPMNShape_Activity_1pr9s2u">
+        <omgdc:Bounds height="142.0" width="112.0" x="670.0" y="268.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Event_1b8vmhe" id="BPMNShape_Event_1b8vmhe">
+        <omgdc:Bounds height="35.0" width="35.0" x="860.0" y="321.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sd844d43c-3e19-4532-a8fb-983fd4873bd9" id="BPMNShape_sd844d43c-3e19-4532-a8fb-983fd4873bd9">
+        <omgdc:Bounds height="35.0" width="35.0" x="290.0" y="324.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="s119f7c47-2de5-4b85-a0d0-ecf16ee85d64" id="BPMNEdge_s119f7c47-2de5-4b85-a0d0-ecf16ee85d64">
+        <omgdi:waypoint x="475.0" y="339.0"></omgdi:waypoint>
+        <omgdi:waypoint x="482.0" y="339.0"></omgdi:waypoint>
+        <omgdi:waypoint x="482.0" y="339.0"></omgdi:waypoint>
+        <omgdi:waypoint x="520.0" y="339.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="s4a505d62-93b5-463c-a786-142e9642bdcd" id="BPMNEdge_s4a505d62-93b5-463c-a786-142e9642bdcd">
+        <omgdi:waypoint x="620.0" y="339.0"></omgdi:waypoint>
+        <omgdi:waypoint x="632.0" y="339.0"></omgdi:waypoint>
+        <omgdi:waypoint x="632.0" y="339.0"></omgdi:waypoint>
+        <omgdi:waypoint x="670.0" y="339.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="s2710d242-5cc4-443b-9820-58599c20f3e2" id="BPMNEdge_s2710d242-5cc4-443b-9820-58599c20f3e2">
+        <omgdi:waypoint x="782.0" y="339.0"></omgdi:waypoint>
+        <omgdi:waypoint x="801.0" y="339.0"></omgdi:waypoint>
+        <omgdi:waypoint x="860.0" y="338.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sc49dcb6b-b40c-45dc-acca-972ce2f05be7" id="BPMNEdge_sc49dcb6b-b40c-45dc-acca-972ce2f05be7">
+        <omgdi:waypoint x="325.0" y="341.0"></omgdi:waypoint>
+        <omgdi:waypoint x="332.0" y="339.0"></omgdi:waypoint>
+        <omgdi:waypoint x="332.0" y="339.0"></omgdi:waypoint>
+        <omgdi:waypoint x="370.0" y="339.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

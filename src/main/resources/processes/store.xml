@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://www.activiti.org/test" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test" id="m1586786943177" name="">
+ <process id="store" name="store" isExecutable="true" isClosed="false" processType="None">
+<userTask id="Activity_03wi8kv" name="商店欢迎顾客到来，发送队列信息"><documentation id="s137a8f6b-f45e-493c-9e12-2f38e7214160">client_enter,queue_state</documentation></userTask>
+<sequenceFlow id="seec4ef4b-928b-46b4-8072-38dffcd33621" sourceRef="Activity_03wi8kv" targetRef="Activity_09t7i4a"/>
+<userTask id="Activity_09t7i4a" name="顾客入队"><documentation id="s3fb47347-2420-467a-adcf-540681c8703e">client_enter_queue,null</documentation></userTask>
+<sequenceFlow id="s59d5f2a5-93d0-4aa1-adc8-2f35e1b95e6a" sourceRef="Activity_09t7i4a" targetRef="Activity_1pr9s2u"/>
+<userTask id="Activity_1pr9s2u" name="指数分布，服务结束,顾客出队"><documentation id="sde75423e-280c-4c72-9977-11aee95888b7">null,client_leave_queue</documentation></userTask>
+<sequenceFlow id="s1132ee50-b28c-46d0-aa6e-d28072c20788" sourceRef="Activity_1pr9s2u" targetRef="Event_1b8vmhe"/>
+<endEvent id="Event_1b8vmhe" />
+<startEvent id="s5d0f23b8-6262-4614-a438-dfa834fdc668" />
+<sequenceFlow id="s1b088de6-eb35-44d9-830d-2186f88d8e29" sourceRef="s5d0f23b8-6262-4614-a438-dfa834fdc668" targetRef="Activity_03wi8kv"/>
+	</process>
+</definitions>

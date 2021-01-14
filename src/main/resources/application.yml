@@ -33,13 +33,13 @@ spring.activiti.check-process-definitions: false
 
 #文件配置
 file:
-  #federation的bpmn文件路径
-  federationBPMNPath: /Users/america/Desktop/Activiti-develop/des_simulation/src/main/resources/FederationBPMN
-  #FileController将数据上传到的路径，注意要有一个'/'
-  filepath: /Users/america/Desktop/Activiti-develop/des_simulation/src/main/resources/FederationBPMN/
-  #将上传上来的文件解析到的文件夹
-  showbpmnpath: /Users/america/Desktop/Activiti-develop/des_simulation/src/main/resources/processes/
+  #federation的bpmn文件路径  /Users/america/Desktop/Activiti-develop/des_simulation/src/main/resources/FederationBPMN
+  federationBPMNPath: /Users/america/Mystudy/ices_simulation/src/main/resources/FederationBPMN
+  #FileController将数据上传到的路径，注意要有一个'/' /Users/america/Desktop/Activiti-develop/des_simulation/src/main/resources/FederationBPMN/
+  filepath: /Users/america/Mystudy/ices_simulation/src/main/resources/FederationBPMN/
+  #将上传上来的文件解析到的文件夹 /Users/america/Desktop/Activiti-develop/des_simulation/src/main/resources/processes/
+  showbpmnpath: /Users/america/Mystudy/ices_simulation/src/main/resources/processes/
   #bpmn文件加载的路径+/
-  processespath: /Users/america/Desktop/Activiti-develop/des_simulation/src/main/resources/processes/
+  processespath: /Users/america/Mystudy/ices_simulation/src/main/resources/processes/
   #bpmn加载路径的文件夹
-  processesfilefolder: /Users/america/Desktop/Activiti-develop/des_simulation/src/main/resources/processes
+  processesfilefolder: /Users/america/Mystudy/ices_simulation/src/main/resources/processes

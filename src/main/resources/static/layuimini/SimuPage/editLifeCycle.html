@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>编辑生命周期</title>
+    <link type="text/css" rel="stylesheet" href="../layui/css/layui.css">
+    <script type="text/javascript" src="../layui/layui.js"></script>
+</head>
+<body>
+<div style="margin-left: 20px ; margin-top: 20px ;width: 1200px">
+    <fieldset class="layui-elem-field">
+        <legend style="font-size: 40px">仿真联邦成员任务编辑</legend>
+
+        <div>
+            <fieldset class="layui-elem-field layui-field-title">
+                <div class="layui-field-box">
+                    <div >
+                        <fieldset class="layui-elem-field layui-field-title">
+                            <legend>仿真任务的详细信息</legend>
+
+                            <table id="currentTaskInfo" lay-filter="currentTaskInfoTableFilter">
+                            </table>
+
+
+                            <!--表格工具栏-->
+                            <script type="text/html" id="currentTaskInfoToolBar">
+                                <div class="layui-btn-container">
+                                    <button class="layui-btn layui-btn-sm layui-btn-warm" lay-event="getCurrentTaskInfo">
+                                        更新当前任务信息
+                                    </button>
+                                    <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="getBPMNGraph">
+                                        获取BPMN图像
+                                    </button>
+                                </div>
+                            </script>
+
+                        </fieldset>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div>
+            <fieldset class="layui-elem-field layui-field-title">
+                <div class="layui-field-box">
+                    <div >
+                        <fieldset class="layui-elem-field layui-field-title">
+                            <legend>内部任务变量信息</legend>
+
+                            <table id="insideTaskHelpVariable" lay-filter="insideTaskHelpVariableTableFilter">
+                            </table>
+
+
+                            <!--表格工具栏-->
+                            <script type="text/html" id="insideTaskHelpVariableToolBar">
+                                <div class="layui-btn-container">
+                                    <button class="layui-btn layui-btn-sm layui-btn-warm" lay-event="getinsideTaskHelpVariableInfo">
+                                        更新内部任务所需变量
+                                    </button>
+                                </div>
+                            </script>
+
+                        </fieldset>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div>
+            <fieldset class="layui-elem-field layui-field-title">
+                <div class="layui-field-box">
+                    <div >
+                        <fieldset class="layui-elem-field layui-field-title">
+                            <legend>当前任务仿真指令表</legend>
+
+                            <table id="SimulationInstruction" lay-filter="SimulationInstructionTableFilter">
+                            </table>
+
+                            <!--表头工具栏，每一行都有的按钮-->
+                            <script type="text/html" id="SimulationInstructionBar">
+                                <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="choose">删除仿真指令</a>
+                            </script>
+
+                            <!--表格工具栏-->
+                            <script type="text/html" id="SimulationInstructionToolBar">
+                                <div class="layui-btn-container">
+                                    <button class="layui-btn layui-btn-sm layui-btn-warm" lay-event="getCurrentTaskInstructionsInfo">
+                                        更新任务指令序列
+                                    </button>
+                                    <button class="layui-btn layui-btn-sm" lay-event="addCurrentTaskInst">
+                                        添加一条仿真指令
+                                    </button>
+                                    <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="completeCurrentTask">
+                                        当前任务编辑完成
+                                    </button>
+                                </div>
+                            </script>
+
+                        </fieldset>
+                    </div>
+                </div>
+
+
+            </fieldset>
+        </div>
+
+
+    </fieldset>
+
+
+<script>
+    //头部工具栏
+    layui.use(['jquery', 'layer','table'],function () {
+        let table = layui.table;
+        let $ = layui.jquery;
+
+        let layer = layui.layer;
+
+
+        //获取当前任务信息
+        table.render({
+            elem:"#currentTaskInfo",//elem绑定id属性值
+            url:"/activiti/getCurrentTaskInfo",//后台数据接口
+            page: false ,//开启分页
+            cols:[[
+                {field: 'currentTaskId', title: '当前任务ID', fixed: 'left'}
+                ,{field:'currentTask',title:'当前任务描述'}
+                ,{field:'federate',title:'任务所属联邦成员'}
+                ,{field:'recvInteraction',title:'收到的交互类'}
+                ,{field:'pubInteraction',title:'发布的交互类'}
+            ]],
+            toolbar:"#currentTaskInfoToolBar"
+        });
+
+        table.on('toolbar(currentTaskInfoTableFilter)',function (obj) {
+            let eventName = obj.event;
+            //判断事件名，执行对应的代码
+            switch(eventName){
+                case "getCurrentTaskInfo":
+                    table.render({
+                        elem:"#currentTaskInfo",//elem绑定id属性值
+                        url:"/activiti/getCurrentTaskInfo",//后台数据接口
+                        page: false ,//开启分页
+                        cols:[[
+                            {field: 'currentTaskId', title: '当前任务ID', fixed: 'left'}
+                            ,{field:'currentTask',title:'当前任务描述'}
+                            ,{field:'federate',title:'任务所属联邦成员'}
+                            ,{field:'recvInteraction',title:'收到的交互类'}
+                            ,{field:'pubInteraction',title:'发布的交互类'}
+                        ]],
+                        toolbar:"#currentTaskInfoToolBar"
+                    });
+                    break;
+                    //getBPMNGraph
+                case "getBPMNGraph":
+                    //添加一个仿真指令
+                    layer.open({
+                        type:2,
+                        title:"BPMN图像",
+                        area:['620px','700px'],
+                        content:["layerPage/addInstruction.html",'yes']
+                    });
+                    break;
+            }
+        });
+
+
+        table.on("tool(currentTaskInfoTableFilter)",function (obj) {
+            //得到当前操作行的相关信息，这是一个json，或者javascript的对象
+            let tr = obj.data;
+
+            //得到事件名
+            let eventName = obj.event;
+
+            let federateData = {
+                "federate":tr.federateName,
+                "federation":tr.federation
+            }
+
+
+            //判断事件名，执行对应方法
+            if(eventName=='choose'){
+
+                $.ajax({
+                    url:"/federateInfo/setTheChosenFederate",
+                    type:"POST",
+                    dataType: 'json',
+                    data:JSON.stringify(federateData),
+                    contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                    success:function(result){
+                        layer.confirm("您已选中联邦成员"+federateData.federate+"，是否填写初始化信息",function (index) {
+                            //确认之后打开
+                            layer.open({
+                                type:2,
+                                title:"联邦成员选中后的初始化",
+                                area:['460px','250px'],
+                                content:["layerPage/federateInitialize.html",'no']
+                            });
+                            layer.close(index);
+                        })
+                    }
+                });
+            }
+        });
+
+        // SimulationInstruction --------------------------------------------------------------------------
+        table.render({
+            elem:"#SimulationInstruction",//elem绑定id属性值
+            url:"/activiti/getCurrentTaskInstructionsInfo",//后台数据接口
+            page: false ,//开启分页
+            cols:[[
+                {field: 'seqId', title: '指令在当前任务中的序号', fixed: 'left'}
+                ,{field:'instruction',title:'指令类型'}
+                ,{field:'instId',title:'指令编号'}
+                ,{field:'操作',title:'操作',toolbar:"#SimulationInstructionBar"}
+            ]],
+            toolbar:"#SimulationInstructionToolBar"
+        });
+
+        table.on('toolbar(SimulationInstructionTableFilter)',function (obj) {
+            let eventName = obj.event;
+            //判断事件名，执行对应的代码
+            switch(eventName){
+                case "getCurrentTaskInstructionsInfo":
+                    //获得当前任务的指令列表
+                    table.render({
+                        elem:"#SimulationInstruction",//elem绑定id属性值
+                        url:"/activiti/getCurrentTaskInstructionsInfo",//后台数据接口
+                        page: false ,//开启分页
+                        cols:[[
+                            {field: 'seqId', title: '指令在当前任务中的序号', fixed: 'left'}
+                            ,{field:'instruction',title:'指令类型'}
+                            ,{field:'instId',title:'指令编号'}
+                            ,{field:'操作',title:'操作',toolbar:"#SimulationInstructionBar"}
+                        ]],
+                        toolbar:"#SimulationInstructionToolBar"
+                    });
+                    break;
+
+                case "addCurrentTaskInst":
+                    //添加一个仿真指令
+                    layer.open({
+                        type:2,
+                        title:"添加联邦参数",
+                        area:['620px','700px'],
+                        content:["layerPage/addInstruction.html",'yes']
+                    });
+                    break;
+
+                case "completeCurrentTask":
+                    let Info ={};
+                    //confirm 确认方法
+                    layer.confirm("您确认要当前任务编辑完成？",function(index){
+                        $.ajax({
+                            url:"/activiti/completeCurrentTask",
+                            type:"POST",
+                            dataType: 'json',
+                            data:JSON.stringify(Info),
+                            contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                            success:function(result){
+                                let resJSONStr = JSON.stringify(result);
+                                let resJSON = JSON.parse(resJSONStr);
+                                layer.msg(resJSON.obj);
+                            }
+                        });
+                        layer.close(index);
+                    });
+                    break;
+            }
+        });
+
+        table.on("tool(SimulationInstructionTableFilter)",function (obj) {
+            let tr = obj.data;
+            let Info = {
+                "objectId":tr.objectId
+            }
+            let eventName = obj.event;
+            let msg = '';
+            if(eventName=='delete'){
+                //confirm 确认方法
+                layer.confirm("您确认要删除",function(index){
+                    //删除指定tr
+                    obj.del();
+
+                    //关闭弹出层(index)是弹出层的下标
+                    layer.close(index);
+                });
+            }
+        });
+
+        //内部任务所需的变量信息
+        table.render({
+            elem:"#insideTaskHelpVariable",//elem绑定id属性值
+            url:"/insideTask/notClickButton",//后台数据接口
+            page: false ,//开启分页
+            cols:[[
+                {field: 'parameterName', title: '变量名称', fixed: 'left'}
+                ,{field:'parameterType',title:'变量类型'}
+                ,{field:'federateName',title:'变量所属联邦'}
+                ,{field:'variableDescription',title:'变量描述'}
+            ]],
+            toolbar:"#insideTaskHelpVariableToolBar"
+        });
+
+        table.on('toolbar(insideTaskHelpVariableTableFilter)',function (obj) {
+            let eventName = obj.event;
+            //判断事件名，执行对应的代码
+            switch(eventName){
+                case "getinsideTaskHelpVariableInfo":
+                    table.render({
+                        elem:"#insideTaskHelpVariable",//elem绑定id属性值
+                        url:"/insideTask/clickButton",//后台数据接口
+                        page: false ,//开启分页
+                        cols:[[
+                            {field: 'parameterName', title: '变量名称', fixed: 'left'}
+                            ,{field:'parameterType',title:'变量类型'}
+                            ,{field:'federateName',title:'变量所属联邦'}
+                            ,{field:'variableDescription',title:'变量描述'}
+                        ]],
+                        toolbar:"#insideTaskHelpVariableToolBar"
+                    });
+                    break;
+            }
+        });
+
+
+
+    });//代码在这个括号之前写
+</script>
+</div>
+</body>
+</html>

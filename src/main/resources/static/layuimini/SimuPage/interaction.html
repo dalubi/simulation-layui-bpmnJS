@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>交互类信息</title>
+    <link type="text/css" rel="stylesheet" href="../layui/css/layui.css">
+    <script type="text/javascript" src="../layui/layui.js"></script>
+</head>
+<body>
+<div style="margin-left: 20px ; margin-top: 20px ;width: 1200px">
+    <fieldset class="layui-elem-field">
+        <legend style="font-size: 40px">填写交互类信息</legend>
+
+        <div>
+            <fieldset class="layui-elem-field layui-field-title">
+                <div class="layui-field-box">
+
+                    <div >
+                        <fieldset class="layui-elem-field layui-field-title">
+                            <legend>设计当前FEDERATION交互类所需参数的基本类型</legend>
+                            <div class="layui-field-box">
+
+                                <table id="Parameters" lay-filter="ParametersTableFilter">
+                                </table>
+
+                                <!--表格工具栏-->
+                                <script type="text/html" id="ParameterToolBar">
+                                    <div class="layui-btn-container">
+                                        <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="getParameterData">
+                                            更新所有参数信息
+                                        </button>
+                                        <button class="layui-btn layui-btn-sm layui-btn-warm" lay-event="addParameterData">
+                                            添加一个参数信息
+                                        </button>
+                                    </div>
+                                </script>
+
+                                <!--表头工具栏，每一行都有的按钮-->
+                                <script type="text/html" id="ParameterBar">
+                                    <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="delete">删除</a>
+                                </script>
+
+
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div >
+                        <fieldset class="layui-elem-field layui-field-title">
+                            <legend>设计当前FEDERATION交互类内所包含的参数信息</legend>
+                            <div class="layui-field-box">
+                                <table id="interactions" lay-filter="InteractionsTableFilter">
+                                </table>
+
+                                <!--表格工具栏-->
+                                <script type="text/html" id="InteractionToolBar">
+                                    <div class="layui-btn-container">
+                                        <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="getInteractionData">
+                                            获取本联邦所有的交互类信息
+                                        </button>
+                                    </div>
+                                </script>
+
+                            </div>
+                        </fieldset>
+                    </div>
+
+                </div>
+            </fieldset>
+        </div>
+
+
+
+    </fieldset>
+
+    <script>
+        //头部工具栏
+        layui.use(['jquery', 'layer','table'],function () {
+            let table = layui.table;
+            let $ = layui.jquery;
+
+
+            var layer = layui.layer;
+
+            //参数信息
+            table.render({
+                elem:"#Parameters",//elem绑定id属性值
+                url:"/getParameters",//后台数据接口
+                page: false ,//开启分页
+                cols:[[
+                    {field: 'parameterName', title: '参数名称', fixed: 'left'}
+                    ,{field: 'parameterId', title: '参数编号'}
+                    ,{field:'parameterType',title:'参数类型'}
+                    ,{field:'操作',title:'选中后编辑交互类',toolbar:"#ParameterBar"}
+                ]],
+                toolbar:"#ParameterToolBar"
+            });
+
+            table.on('toolbar(ParametersTableFilter)',function (obj) {
+                let eventName = obj.event;
+                //判断事件名，执行对应的代码
+                switch(eventName){
+                    case "getParameterData":
+                        table.render({
+                            elem:"#Parameters",//elem绑定id属性值
+                            url:"/getParameters",//后台数据接口
+                            page: false ,//开启分页
+                            cols:[[
+                                {field: 'parameterName', title: '参数名称', fixed: 'left'}
+                                ,{field:'parameterType',title:'参数类型'}
+                                ,{field: 'parameterId', title: '参数编号'}
+                                ,{field:'操作',title:'操作',toolbar:"#ParameterBar"}
+                            ]],
+                            toolbar:"#ParameterToolBar"
+                        });
+                        break;
+                    case "addParameterData":
+                        layer.open({
+                            type:2,
+                            title:"添加一个参数信息",
+                            area:['450px','270px'],
+                            content:["layerPage/parameterForm.html",'no']
+                        });
+                        break;
+                }
+            });
+
+            table.on("tool(ParametersTableFilter)",function (obj) {
+                let tr = obj.data;
+                let parameterName = {
+                    "parameterName":tr.parameterName
+                }
+                let eventName = obj.event;
+                let msg = '';
+                if(eventName=='delete'){
+                    //confirm 确认方法
+                    layer.confirm("您确认要删除",function(index){
+                        //删除指定tr
+                        obj.del();
+
+                        $.ajax({
+                            url:"/deleteParameter",
+                            type:"POST",
+                            dataType: 'json',
+                            data:JSON.stringify(parameterName),
+                            contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                            success:function(result){
+                                //把obj类型转化成json类型的字符串
+                                let resJSONStr = JSON.stringify(result);
+                                let resJSON = JSON.parse(resJSONStr);
+                                msg = resJSON.obj;
+                            }
+                        });
+
+                        //关闭弹出层(index)是弹出层的下标
+                        layer.close(index);
+                    });
+                }
+            });
+
+            //交互类信息
+            table.render({
+                elem:"#interactions",//elem绑定id属性值
+                url:"/getAllInteractions",//后台数据接口
+                page: false ,//开启分页
+                cols:[[
+                    {field: 'interactionName', title: '交互类名称', fixed: 'left'}
+                    ,{field:'containParameterIds',title:'交互类包含参数（填写参数编号）',edit:true}
+                ]],
+                toolbar:"#InteractionToolBar"
+            });
+
+            table.on('toolbar(InteractionsTableFilter)',function (obj) {
+                let eventName = obj.event;
+                //判断事件名，执行对应的代码
+                switch(eventName){
+                    case "getInteractionData":
+                        //交互类信息
+                        table.render({
+                            elem:"#interactions",//elem绑定id属性值
+                            url:"/getAllInteractions",//后台数据接口
+                            page: false ,//开启分页
+                            cols:[[
+                                {field: 'interactionName', title: '交互类名称', fixed: 'left'}
+                                ,{field:'containParameterIds',title:'交互类包含参数（填写参数编号）',edit:true}
+                            ]],
+                            toolbar:"#InteractionToolBar"
+                        });
+                        break;
+                }
+            });
+
+            table.on('edit(InteractionsTableFilter)',function (obj) {
+                //获取改变后的值
+                let value = obj.value;
+                //获得改变之前的值
+                let data = obj.data;
+                //得到修改的字段名
+                let field = obj.field;
+
+                //别名的上传
+                //定义json数据
+                let modify = {
+                    "interactionName":data.interactionName,
+                    "containParameterIds":value
+                }
+
+                $.ajax({
+                    url:"/modifyInteraction",
+                    type:"POST",
+                    dataType: 'json',
+                    data:JSON.stringify(modify),
+                    contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                    success:function(result){
+                        layer.msg("数据修改成功！")
+                    }
+                });
+            });
+
+        });
+    </script>
+</div>
+</body>
+</html>

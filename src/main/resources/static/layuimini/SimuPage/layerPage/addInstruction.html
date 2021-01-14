@@ -1,0 +1,2874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加一条仿真指令</title>
+    <link type="text/css" rel="stylesheet" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+</head>
+<body>
+<div >
+
+    <fieldset class="layui-elem-field layui-field-title" style="width:600px;margin-left: 10px;margin-right: 10px;margin-top: 10px">
+        <legend>添加一条仿真指令</legend>
+        <br />
+
+        <form class="layui-form" id="formid" action="">
+
+            <div class="layui-input-inline">
+                <label class="layui-form-label">指令类型:</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <div class="layui-input-inline">
+                        <select name="instructionType" lay-filter="instructionTypeSel" id="instructionTypeID">
+                            <option value="">--请选择--</option>
+                            <option value="logic">逻辑控制类指令</option>
+                            <option value="object">对象类指令</option>
+                            <option value="tool">工具类指令</option>
+                            <option value="math">数学类指令</option>
+                            <option value="other">其他指令</option>
+                            <option value="complex">复合指令</option>
+                        </select>
+                    </div>
+
+                 </div>
+
+            </div>
+
+            <div class="layui-input-inline">
+                <label class="layui-form-label">具体指令:</label>
+                    <div class="layui-input-inline" style="width: 100px;">
+                        <select name="instruction"  lay-filter="instructionSel" id="instructionID">
+                            <option value="">--请选择--</option>
+
+                        </select>
+                    </div>
+            </div>
+
+            <button type="button" class="layui-btn" onclick="openNeedInformation()">辅助信息查询</button>
+
+        </form>
+
+        <br/><hr/><br/>
+
+
+        <div id="insertPos"></div>
+
+    </fieldset>
+
+</div>
+
+<script>
+    //参数信息
+    var map = new Map() ;
+
+
+    layui.use(['jquery', 'layer','table'],function () {
+        let $ = layui.jquery;
+        let form = layui.form;
+        let layer = layui.layer;
+
+        form.render('select');
+
+        //多级select
+        form.on('select(instructionTypeSel)',function(data){
+            let instructionType = data.value;
+            let Info = {
+                "instructionType":instructionType.toString()
+            };
+            $.ajax({
+                type : "post",
+                url : "/activiti/getInstructionsByType",
+                data : JSON.stringify(Info),
+                dataType : "json",
+                contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                success : function(d) {
+                    let tmp = '<option value="">--请选择--</option>';
+                    for ( var i in d) {
+                        tmp += '<option value=" ' + d[i].instructionEng + ' ">' + d[i].instructionChn + '</option>';
+                        map.set(d[i].instructionEng.toString(),d[i].uploadUrl);
+                    }
+                    $("#instructionID").html(tmp);
+                    form.render();
+                },
+                error:function(){
+                    layer.alert('请求失败，稍后再试', {icon: 5});
+                }
+            });
+        });
+
+        function openNeedInformation() {
+            let layer = layui.layer;
+            layer.open({
+                type:2,
+                title:"辅助信息查询",
+                area:['400px','500px'],
+                content:["neededInformation.html",'yes']
+            });
+        }
+
+        var instruction;
+        form.on('select(instructionSel)',function(data){
+            let instructionEng = data.value;
+            let Info = {
+                "instructionEng":instructionEng.toString()
+            };
+            // console.log(instructionEng.toString().trim()==='if');
+
+            var instructionName = instructionEng.toString().trim();
+            instruction = instructionName;
+
+            switch (instructionName) {
+                case 'if':
+                    ifHTML();
+                    form.render();
+                    break;
+                case 'else if':
+                    elseifHTML();
+                    form.render();
+                    break;
+                case 'else':
+                    elseHTML();
+                    form.render();
+                    break;
+                case 'while':
+                    whileHTML();
+                    form.render();
+                    break;
+                case 'forNumber':
+                    forNumberHTML();
+                    form.render();
+                    break;
+                case 'forEach':
+                    forEachHTML();
+                    form.render();
+                    break;
+                case 'select':
+                    selectHTML();
+                    form.render();
+                    break;
+                case 'break':
+                    breakHTML();
+                    form.render();
+                    break;
+                case 'continue':
+                    continueHTML();
+                    form.render();
+                    break;
+
+                case 'loopend':
+                    loopendHTML();
+                    form.render();
+                    break;
+
+                case 'create':
+                    createHTML();
+                    form.render();
+                    break;
+
+                case 'objectset':
+                    objectsetHTML();
+                    form.render();
+                    break;
+
+                case 'objectget':
+                    objectgetHTML();
+                    form.render();
+                    break;
+
+                case 'listSize':
+                    listSizeHTML();
+                    form.render();
+                    break;
+
+
+                case 'listGet':
+                    listGetHTML();
+                    form.render();
+                    break;
+
+
+                case 'listGetRandom':
+                    listGetRandomHTML();
+                    form.render();
+                    break;
+
+
+                case 'listremove':
+                    listremoveHTML();
+                    form.render();
+                    break;
+
+
+                case 'listclear':
+                    listclearHTML();
+                    form.render();
+                    break;
+
+                case 'listAdd':
+                    listAddHTML();
+                    form.render();
+                    break;
+
+                case 'MapGet':
+                    MapGetHTML();
+                    form.render();
+                    break;
+
+                case 'MapPut':
+                    MapPutHTML();
+                    form.render();
+                    break;
+
+                case 'containsKey':
+                    containsKeyHTML();
+                    form.render();
+                    break;
+
+                case 'containsValue':
+                    containsValueHTML();
+                    form.render();
+                    break;
+
+
+                case 'createStringBuilder':
+                    createStringBuilderHTML();
+                    form.render();
+                    break;
+
+                case 'append':
+                    appendHTML();
+                    form.render();
+                    break;
+
+                case 'toString':
+                    toStringHTML();
+                    form.render();
+                    break;
+
+                case 'IntegerToString':
+                    IntegerToStringHTML();
+                    form.render();
+                    break;
+
+                case 'StringToInteger':
+                    StringToIntegerHTML();
+                    form.render();
+                    break;
+
+                case 'typeConversion':
+                    typeConversionHTML();
+                    form.render();
+                    break;
+
+                case 'MathAbs':
+                    MathAbsHTML();
+                    form.render();
+                    break;
+
+                case 'MathExp':
+                    MathExpHTML();
+                    form.render();
+                    break;
+
+                case 'MathLog':
+                    MathLogHTML();
+                    form.render();
+                    break;
+
+                case 'MathPow':
+                    MathPowHTML();
+                    form.render();
+                    break;
+
+                case 'ceil':
+                    ceilHTML();
+                    form.render();
+                    break;
+
+                case 'floor':
+                    floorHTML();
+                    form.render();
+                    break;
+
+                case 'round':
+                    roundHTML();
+                    form.render();
+                    break;
+
+                case 'GaussianDistribution':
+                    GaussianDistributionHTML();
+                    form.render();
+                    break;
+
+                case 'ExpDistribution':
+                    ExpDistributionHTML();
+                    form.render();
+                    break;
+
+                case 'PossionDistribution':
+                    PossionDistributionHTML();
+                    form.render();
+                    break;
+
+                case 'expression':
+                    expressionHTML();
+                    form.render();
+                    break;
+
+                case 'assign':
+                    assignHTML();
+                    form.render();
+                    break;
+
+                case 'logOutput':
+                    logOutputHTML();
+                    form.render();
+                    break;
+
+                case 'send':
+                    sendHTML();
+                    form.render();
+                    break;
+
+                case 'randomInt':
+                    randomIntHTML();
+                    form.render();
+                    break;
+
+                case 'randomDouble':
+                    randomDoubleHTML();
+                    form.render();
+                    break;
+
+                case 'randomOrderName':
+                    randomOrderNameHTML();
+                    form.render();
+                    break;
+
+                case 'randomLocationName':
+                    randomLocationNameHTML();
+                    form.render();
+                    break;
+
+                case 'SimulationTime':
+                    SimulationTimeHTML();
+                    form.render();
+                    break;
+
+                case 'RealTime':
+                    RealTimeHTML();
+                    form.render();
+                    break;
+
+                case 'delay':
+                    delayHTML();
+                    form.render();
+                    break;
+
+            }
+
+        });
+
+        //if
+        function ifHTML() {
+            let html ='<!--if-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>表达式：if语句中的判断条件</h2>\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="ifID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">表达式</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="expression" required  lay-verify="required" placeholder="表达式" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="ifForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(ifForm)', function(data){
+            var formId = "#ifID";
+            var info = $(formId).serializeArray();
+
+            $.ajax({
+                url:"/inst/if",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                }
+            });
+
+        });
+
+        //else if
+        function elseifHTML() {
+            let html ='<!--elseif-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>表达式：else if语句中的判断条件</h2>\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="elseifID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">表达式</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="expression" required  lay-verify="required" placeholder="表达式" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="elseifForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>\n';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(elseifForm)', function(data){
+            var formId = "#elseifID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/elseif",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //else
+        function elseHTML() {
+            let html ='<!--else-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    本指令没有需要填写的参数\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="elseID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="elseForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(elseForm)', function(data){
+            var formId = "#elseID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/else",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layer.msg(msg);
+                }
+            });
+        });
+
+        //while
+        function whileHTML() {
+            let html ='<!--while-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    表达式：while语句中的表达式\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="whileID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">表达式</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="expression" required  lay-verify="required" placeholder="表达式" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="whileForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(whileForm)', function(data){
+            var formId = "#whileID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/while",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+
+        //fornumber
+        function forNumberHTML() {
+            let html ='<!--fornumber-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>按照次数控制循环</h2>\n' +
+                '    循环次数：设定想要循环的次数<br />\n' +
+                '    循环变量：设定想对其进行循环的变量<br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="fornumberID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">循环次数</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="number" required  lay-verify="required" placeholder="循环的次数" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">循环变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="loopVariableName" required  lay-verify="required" placeholder="循环的变量，输入变量名" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="fornumberForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(fornumberForm)', function(data){
+            var formId = "#fornumberID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/fornumber",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+       //foreach
+        function forEachHTML() {
+            let html ='<!--foreach-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>列表遍历</h2>\n' +
+                '    \n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="foreachID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">列表名字</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="listName" required  lay-verify="required" placeholder="想要遍历的列表的名称" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">对象名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="objectName" required  lay-verify="required" placeholder="循环中找寻对象的名称" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">结果变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="保存结果的变量" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="foreachForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(foreachForm)', function(data){
+            var formId = "#foreachID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/foreach",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //select
+        function selectHTML() {
+            let html ='<!--select-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>分支指令,可被if else 替代</h2>\n' +
+                '    InformationName:\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="selectID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">InformationName</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="InformationName" required  lay-verify="required" placeholder="InformationName" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">分支一</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="branch1Id" required  lay-verify="required" placeholder="分支1的ID编号" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">分支二</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="branch2Id" required  lay-verify="required" placeholder="分支2的ID编号" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="selectForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(selectForm)', function(data){
+            var formId = "#selectID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/select",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+    //break
+    function breakHTML() {
+        let html ='<!--break-->\n' +
+            '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+            '    本指令没有需要填写的参数\n' +
+            '</blockquote>\n' +
+            '<br/>\n' +
+            '<form id="breakID" class="layui-form" action="" >\n' +
+            '    <div class="layui-form-item">\n' +
+            '        <div class="layui-input-block">\n' +
+            '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="breakForm" style="margin-left: 300px">立即提交</button>\n' +
+            '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+            '        </div>\n' +
+            '    </div>\n' +
+            '</form>\n';
+        let elementById = document.getElementById("insertPos");
+        elementById.insertAdjacentHTML("beforeEnd",html);
+    }
+
+    form.on('submit(breakForm)', function(data){
+        var formId = "#breakID";
+        var info = $(formId).serializeArray();
+        $.ajax({
+            url:"/inst/break",
+            type:"post",
+            dataType:"text",
+            data: info,
+            success:function(result){
+                let resJSON = JSON.parse(result);
+                let msg = resJSON.obj;
+                layui.layer.msg(msg)
+            }
+        });
+    });
+
+
+        //continue
+        function continueHTML() {
+            let html ='<!--continue-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    本指令没有需要填写的参数\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="continueID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="continueForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>\n';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(continueForm)', function(data){
+            var formId = "#continueID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/continue",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //loopend
+        function loopendHTML() {
+            let html ='<!--loopend-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>循环终止符号</h2>\n' +
+                '    content：我也不知道是啥\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="loopendID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">内容</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="content" required  lay-verify="required" placeholder="内容" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="loopendForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>\n';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(loopendForm)', function(data){
+            var formId = "#loopendID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/loopend",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //executeTask
+        function executeTaskHTML() {
+            let html ='<!--executeTask-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>子任务标识，标识此处任务将在之后的activiti Task中实现</h2>\n' +
+                '    任务编号：设置子任务的任务ID\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="executeTaskID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">任务编号</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="taskId" required  lay-verify="required" placeholder="任务编号" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="executeTaskForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(executeTaskForm)', function(data){
+            var formId = "#executeTaskID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/executeTask",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //create
+        function createHTML() {
+            let html ='<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>创建对象：空参构造或者全参构造</h2><br />\n' +
+                '    创建的对象的类型：想要创建的对象类型<br />\n' +
+                '    参数形式：用逗号隔开(1:值来自交互类。2：来自其他)，这个对象中对应各个参数的形式<br />\n' +
+                '    对象各参数：填充这个对象的各个参数，用逗号隔开<br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="createID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">对象ID</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="objectId" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">类型信息</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="typeInformation" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">实际信息</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="actualInformation" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="createForm" style="margin-left: 300px">提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(createForm)', function(data){
+            var formId = "#createID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/create",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //objectget
+        function objectgetHTML() {
+            let html ='<!--objectget-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>获取对象的属性值</h2><br />\n' +
+                '    对象名称：想要创建的对象类型<br />\n' +
+                '    属性名称：用逗号隔开(1:值来自交互类。2：来自其他)，这个对象中对应各个参数的形式<br />\n' +
+                '    属性类型：填充这个对象的各个参数，用逗号隔开<br />\n' +
+                '    存值变量：\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="objectgetID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">对象名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="objectName" required  lay-verify="required" placeholder="请输入这个对象的名称" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">属性名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="parameterName" required  lay-verify="required" placeholder="请输入想要得到的属性名称" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">属性类型</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outType" required  lay-verify="required" placeholder="1:信息来自交互类，2:来自其他" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="用来保存值的变量" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="objectgetForm" style="margin-left: 300px">提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>\n';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(objectgetForm)', function(data){
+            var formId = "#objectgetID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/objectget",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //objectset
+        function objectsetHTML() {
+            let html ='<!--objectset-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>设置对象的属性值</h2><br />\n' +
+                '    对象名称：想要创建的对象类型<br />\n' +
+                '    属性名称：用逗号隔开(1:值来自交互类。2：来自其他)，这个对象中对应各个参数的形式<br />\n' +
+                '    信息形式：填充这个对象的各个参数，用逗号隔开<br />\n' +
+                '    属性赋值：\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="objectsetID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">对象名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="objectName" required  lay-verify="required" placeholder="想要设置属性的对象的名称" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">参数名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="parameterName" required  lay-verify="required" placeholder="请输入想要设置的属性名称" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">设置名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="setName" required  lay-verify="required" placeholder="给这个属性赋值" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="objectsetForm" style="margin-left: 300px">提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(objectsetForm)', function(data){
+            var formId = "#objectsetID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/objectset",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+
+        //工具类
+
+        //listSize
+        function listSizeHTML() {
+            let html ='<!--listSize-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>获得已知名称的列表的长度</h2><br />\n' +
+                '    列表名称：想要得到长度的列表名<br />\n' +
+                '    存值变量：用来保存列表的长度的变量名\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="listSizeID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">列表名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="listName" required  lay-verify="required" placeholder="输入列表的名字" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="用来保存列表的长度的变量名" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="listSizeForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(listSizeForm)', function(data){
+            var formId = "#listSizeID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/listSize",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //listGet
+        function listGetHTML() {
+            let html ='<!--listget-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>在列表中根据属性值流式获取对象</h2><br />\n' +
+                '    列表名称：想要获得元素的列表名称<br />\n' +
+                '    对象类型：列表中对象的类型<br />\n' +
+                '    信息形式：用逗号隔开(1:值来自交互类。2：来自其他)，这个对象中对应各个参数的形式<br />\n' +
+                '    依据信息：依据的信息<br />\n' +
+                '    依照属性：所依照的属性名<br />\n' +
+                '    存值变量：新的对象名\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="listgetID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">列表名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="listName" required  lay-verify="required" placeholder="对象所在的列表名" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">元素类型</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="objectName" required  lay-verify="required" placeholder="1:信息来自交互类，2:来自其他" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">依据信息</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="fillInformation" required  lay-verify="required" placeholder="依据的信息" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">依照属性</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="accordingParameter" required  lay-verify="required" placeholder="所依照的属性名" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="新的对象名" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="listgetForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(listgetForm)', function(data){
+            var formId = "#listgetID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/listGet",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //listGetRandom
+        function listGetRandomHTML() {
+            let html ='<!--listGetRandom-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>随机从列表中获取一个对象</h2><br />\n' +
+                '    对象名称：列表的类型<br />\n' +
+                '    属性名称：请输入想要得到的属性名称<br />\n' +
+                '    属性类型：1:信息来自交互类，2:来自其他<br />\n' +
+                '    存值变量：\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="listgetrandomID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">列表名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="listName" required  lay-verify="required" placeholder="列表名称" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">对象名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="objectName" required  lay-verify="required" placeholder="请输入这个对象的名称" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">填充信息</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="fillInformation" required  lay-verify="required" placeholder="1:信息来自交互类，2:来自其他" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="用来保存值的变量" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="listgetrandomForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(listgetrandomForm)', function(data){
+            var formId = "#listgetrandomID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/listGetRandom",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //listremove
+        function listremoveHTML() {
+            let html ='<!--listremove-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>移除列表中一个对象</h2><br />\n' +
+                '    队列名称: 请输入这个队列的名称<br />\n' +
+                '    元素类型: 队列中元素的类型<br />\n' +
+                '    属性类型: 例如:name,若移除类型为3请填写-1<br />\n' +
+                '    元素形式: 1:参数值来自交互类  2:自定义参数值 3:直接删除对象不通过查找<br />\n' +
+                '    存值变量: 用来保存值的变量\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="listremoveID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">队列名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="listName" required  lay-verify="required" placeholder="请输入这个队列的名称" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">元素类型</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="objectType" required  lay-verify="required" placeholder="队列中元素的类型" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">属性类型</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="accordingToParameterName" required  lay-verify="required" placeholder="例如:name,若移除类型为3请填写-1" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">元素形式</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="removeType" required  lay-verify="required" placeholder="1:参数值来自交互类  2:自定义参数值 3:直接删除对象不通过查找" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="removeName" required  lay-verify="required" placeholder="用来保存值的变量" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="listremoveForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(listremoveForm)', function(data){
+            var formId = "#listremoveID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/listremove",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+
+        //listclear
+        function listclearHTML() {
+            let html ='<!--listclear-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>清空列表</h2><br />\n' +
+                '    列表名称：想要清空的列表的名字<br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="listclearID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">对象名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="listName" required  lay-verify="required" placeholder="将要清空的列表名" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="listclearForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(listclearForm)', function(data){
+            var formId = "#listclearID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/listclear",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //listAdd
+        function listAddHTML() {
+            let html ='<!--listadd-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>已知对象名，将该对象添加到某个列表中</h2><br />\n' +
+                '    列表名称：添加对象的列表名<br />\n' +
+                '    对象名称：添加对象的名称<br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="listaddID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">列表名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="listName" required  lay-verify="required" placeholder="输入列表名字" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">对象名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="objectName" required  lay-verify="required" placeholder="要添加的对象的名字" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-inline">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="listaddForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(listaddForm)', function(data){
+            var formId = "#listaddID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/listAdd",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //MapGet
+        function MapGetHTML() {
+            let html ='<!--mapget-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>哈希表中获取Value</h2><br />\n' +
+                '    对象名称：想要创建的对象类型<br />\n' +
+                '    属性名称：用逗号隔开(1:值来自交互类。2：来自其他)，这个对象中对应各个参数的形式<br />\n' +
+                '    属性类型：填充这个对象的各个参数，用逗号隔开<br />\n' +
+                '    存值变量：\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="mapgetID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">KEY</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="key" required  lay-verify="required" placeholder="哈希表中的KEY" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">对象名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="objectName" required  lay-verify="required" placeholder="请输入这个对象的名称" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">参数类型</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="parameterType" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="用来保存值的变量" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="mapgetForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(mapgetForm)', function(data){
+            var formId = "#mapgetID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/MapGet",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //MapPut
+        function MapPutHTML() {
+            let html ='<!--mapput-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>哈希表放入键值对</h2><br />\n' +
+                '    对象名称：<br />\n' +
+                '    属性名称：<br />\n' +
+                '    属性类型：<br />\n' +
+                '    存值变量：\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="mapputID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">KEY</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="key" required  lay-verify="required" placeholder="键" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">Value</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="value" required  lay-verify="required" placeholder="值" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">对象类型</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="objectName" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="mapputForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(mapputForm)', function(data){
+            var formId = "#mapputID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/MapPut",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //containsKey
+        function containsKeyHTML() {
+            let html ='<!--containskey-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>获取对象的属性值</h2><br />\n' +
+                '    对象名称：想要创建的对象类型<br />\n' +
+                '    属性名称：用逗号隔开(1:值来自交互类。2：来自其他)，这个对象中对应各个参数的形式<br />\n' +
+                '    属性类型：填充这个对象的各个参数，用逗号隔开<br />\n' +
+                '    存值变量：\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="containskeyID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">KEY</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="key" required  lay-verify="required" placeholder="键" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">对象名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="objectName" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="用来保存值的变量" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="containskeyForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(containskeyForm)', function(data){
+            var formId = "#containskeyID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/containsKey",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //containsValue
+        function containsValueHTML() {
+            let html ='<!--containsValue-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>哈希表中是否存在该Value</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="containsvalueID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">Value</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="value" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">对象名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="objectName" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="containsvalueForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>\n';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(containsvalueForm)', function(data){
+            var formId = "#containsvalueID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/containsValue",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //createStringBuilder
+        function createStringBuilderHTML() {
+            let html ='<!--createStringBuilder-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>可变字符串</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="createStringBuilderID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="用来保存值的变量" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="createStringBuilderForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(createStringBuilderForm)', function(data){
+            var formId = "#createStringBuilderID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/createStringBuilder",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //append
+        function appendHTML() {
+            let html ='<!--append-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>字符串追加</h2><br />\n' +
+                '    名称：字符串名称<br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="appendID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="StringBuilderName" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">formatInformation</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="formatInformation" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">fillInformation</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="fillInformation" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="appendForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(appendForm)', function(data){
+            var formId = "#appendID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/append",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //toString
+        function toStringHTML() {
+            let html ='<!--toString-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>将对象转化为字符串</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="tostringID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">对象名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="objectName" required  lay-verify="required" placeholder="请输入这个对象的名称" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="用来保存值的变量" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="tostringForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(tostringForm)', function(data){
+            var formId = "#tostringID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/tostring",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //IntegerToString
+        function IntegerToStringHTML() {
+            let html ='';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(IntegerToStringForm)', function(data){
+            var formId = "#IntegerToStringID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/IntegerToString",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //StringToInteger
+        function StringToIntegerHTML() {
+            let html ='<!--StringToInteger-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>字符串转数字</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="StringToIntegerID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">值</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="value" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="用来保存值的变量" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="StringToIntegerForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(StringToIntegerForm)', function(data){
+            var formId = "#StringToIntegerID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/StringToInteger",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+
+        //typeConversion
+        function typeConversionHTML() {
+            let html ='<!--typeConversion-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>强制类型转换</h2><br />\n' +
+                '    转换类型：强制转换的类型<br />\n' +
+                '    转换信息：转换内容<br />\n' +
+                '    存值变量：用来保存值的变量\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="typeConversionID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">转换类型</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="conversionType" required  lay-verify="required" placeholder="强制转换的类型" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">转换信息</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="information" required  lay-verify="required" placeholder="转换内容" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="用来保存值的变量" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="typeConversionForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(typeConversionForm)', function(data){
+            var formId = "#typeConversionID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/typeConversion",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+
+        //数学类
+        //MathAbs
+        function MathAbsHTML() {
+            let html ='<!--mathabs-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>取绝对值</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="MathAbsID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">填写信息</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="fillInformation" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="MathAbsForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(MathAbsForm)', function(data){
+            var formId = "#MathAbsID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/MathAbs",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //MathExp
+        function MathExpHTML() {
+            let html ='<!--MathExp-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>指数</h2>\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="MathExpID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">参数</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="parameter" required  lay-verify="required" placeholder="参数" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="新的对象名" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="MathExpForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(MathExpForm)', function(data){
+            var formId = "#MathExpID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/MathExp",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //MathLog
+        function MathLogHTML() {
+            let html ='<!--MathLog-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>对数</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="MathLogID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">参数</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="parameter" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="用来保存值的变量" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="MathLogForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(MathLogForm)', function(data){
+            var formId = "#MathLogID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/MathLog",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //MathPow
+        function MathPowHTML() {
+            let html ='<!--MathPow-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>幂次运算</h2>\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="MathPowID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">base</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="base" required  lay-verify="required" placeholder="基数" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">index</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="index" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="用来保存值的变量" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="MathPowForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>\n';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(MathPowForm)', function(data){
+            var formId = "#MathPowID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/MathPow",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //ceil
+        function ceilHTML() {
+            let html ='<!--ceil-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>向上取整</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="ceilID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">参数</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="parameter" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">变量名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="ceilForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(ceilForm)', function(data){
+            var formId = "#ceilID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/ceil",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //floor
+        function floorHTML() {
+            let html ='<!--floor-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>向下取整</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="floorID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">参数</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="parameter" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">变量名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="floorForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(floorForm)', function(data){
+            var formId = "#floorID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/floor",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //round
+        function roundHTML() {
+            let html ='<!--round-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>四舍五入取整</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="roundID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">参数</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="parameter" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">变量名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="roundForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(roundForm)', function(data){
+            var formId = "#roundID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/round",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //GaussianDistribution
+        function GaussianDistributionHTML() {
+            let html ='<!--GaussianDistribution-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>高斯分布</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="GaussianDistributionID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="用来保存值的变量" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="GaussianDistributionForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>\n';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(GaussianDistributionForm)', function(data){
+            var formId = "#GaussianDistributionID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/GaussianDistribution",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //ExpDistribution
+        function ExpDistributionHTML() {
+            let html ='<!--ExpDistribution-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>指数分布</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="ExpDistributionID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">lambda</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="lambda" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="用来保存值的变量" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="ExpDistributionForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(ExpDistributionForm)', function(data){
+            var formId = "#ExpDistributionID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/ExpDistribution",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //PossionDistribution
+        function PossionDistributionHTML() {
+            let html ='<!--PossionDistribution-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>泊松分布</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="PossionDistributionID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">lambda</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="lambda" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="用来保存值的变量" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="PossionDistributionForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>\n';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(PossionDistributionForm)', function(data){
+            var formId = "#PossionDistributionID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/PossionDistribution",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //other指令
+        // expression
+        function expressionHTML() {
+            let html ='<!--expression-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>表达式   例：?+?;?>?  </h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="expressionID" class="layui-form" action="" >\n' +
+                '    <div  class="layui-form-item">\n' +
+                '        <label class="layui-form-label">表达式</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="expressionInformation" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">填充信息</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="fillInformation" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">变量类型</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outType" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="expressionForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(expressionForm)', function(data){
+            var formId = "#expressionID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/expression",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        // assign
+        function assignHTML() {
+            let html ='<!--assign-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>赋值</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="assignID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">参数类型</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="parameterType" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">填充信息</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="fillInformation" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="新的对象名" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="assignForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(assignForm)', function(data){
+            var formId = "#assignID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/assign",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        // logOutput
+        function logOutputHTML() {
+            let html ='<!--logOutput-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>日志输出</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="logOutputID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">标准化</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="formatInformation" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">填充信息</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="fillInformation" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="logOutputForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>\n';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(logOutputForm)', function(data){
+            var formId = "#logOutputID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/logOutput",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        // send
+        function sendHTML() {
+            let html ='<!--send-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>发送交互类</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="sendID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">交互类名</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="sendInteractionName" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">交互信息</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="sendInformation" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="sendForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>\n';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(sendForm)', function(data){
+            var formId = "#sendID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/send",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //randomInt
+        function randomIntHTML() {
+            let html ='\n' +
+                '<!--randomInt-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>随机整数</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="randomIntID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">最低</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="fromInt" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">最高</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="toInt" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">变量名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="randomIntForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(randomIntForm)', function(data){
+            var formId = "#randomIntID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/randomInt",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //randomDouble
+        function randomDoubleHTML() {
+            let html ='<!--randomDouble-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>随机浮点数</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="randomDoubleID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">origin：</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="origin" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">bound：</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="bound" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="randomDoubleForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>\n';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(randomDoubleForm)', function(data){
+            var formId = "#randomDoubleID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/randomDouble",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //randomOrderName
+        function randomOrderNameHTML() {
+            let html ='<!--randomOrderName-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>随机菜名</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="randomOrderNameID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">变量名称</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="randomOrderNameForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>\n';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(randomOrderNameForm)', function(data){
+            var formId = "#randomOrderNameID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/randomOrderName",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //randomLocationName
+        function randomLocationNameHTML() {
+            let html ='<!--randomLocationName-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>随机地点</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="randomLocationNameID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="用来保存值的变量" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="randomLocationNameForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>\n';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(randomLocationNameForm)', function(data){
+            var formId = "#randomLocationNameID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/randomLocationName",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //SimulationTime
+        function SimulationTimeHTML() {
+            let html ='<!--SimulationTime-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>获取仿真时间(double类型)</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="SimulationTimeID" class="layui-form" action="" >\n' +
+                '\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="用来保存值的变量" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="SimulationTimeForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>\n';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(SimulationTimeForm)', function(data){
+            var formId = "#SimulationTimeID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/SimulationTime",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //RealTime
+        function RealTimeHTML() {
+            let html ='<!--RealTime-->\n' +
+                '<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>获取仿真时间转换实际时间</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="RealTimeID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">仿真时间</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="SimulationTime" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">存值变量</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="outName" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="RealTimeForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(RealTimeForm)', function(data){
+            var formId = "#RealTimeID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/RealTime",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+        //delay
+        function delayHTML() {
+            let html ='<blockquote class="layui-elem-quote layui-quote-nm">\n' +
+                '    <h2>延时</h2><br />\n' +
+                '</blockquote>\n' +
+                '<br/>\n' +
+                '<form id="delayID" class="layui-form" action="" >\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <label class="layui-form-label">delayTime：</label>\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <input type="text" name="delayTime" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '    <div class="layui-form-item">\n' +
+                '        <div class="layui-input-block">\n' +
+                '            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="delayForm" style="margin-left: 300px">立即提交</button>\n' +
+                '            <button type="reset" class="layui-btn layui-btn-primary">重置</button>\n' +
+                '        </div>\n' +
+                '    </div>\n' +
+                '</form>';
+            let elementById = document.getElementById("insertPos");
+            elementById.insertAdjacentHTML("beforeEnd",html);
+        }
+
+        form.on('submit(delayForm)', function(data){
+            var formId = "#delayID";
+            var info = $(formId).serializeArray();
+            $.ajax({
+                url:"/inst/delay",
+                type:"post",
+                dataType:"text",
+                data: info,
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+        //最后的括号
+    });
+
+
+
+</script>
+</body>
+</html>

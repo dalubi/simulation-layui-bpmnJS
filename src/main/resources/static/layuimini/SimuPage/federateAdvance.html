@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link type="text/css" rel="stylesheet" href="../layui/css/layui.css">
+    <script type="text/javascript" src="../layui/layui.js"></script>
+</head>
+<body>
+<div style="margin-left: 20px ; margin-top: 20px ;width: 1200px">
+    <fieldset class="layui-elem-field">
+        <legend style="font-size: 40px">仿真联邦进阶参数设置</legend>
+
+        <div >
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>仿真列表信息设置</legend>
+                <div class="layui-field-box">
+
+                    <table id="federateList" lay-filter="FederateListTableFilter">
+                    </table>
+
+                    <!--表格工具栏-->
+                    <script type="text/html" id="FederateListToolBar">
+                        <div class="layui-btn-container">
+                            <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="getFederateListData">
+                                更新所有仿真列表信息
+                            </button>
+                            <button class="layui-btn layui-btn-sm layui-btn-warm" lay-event="addFederateListData">
+                                添加一个仿真列表信息
+                            </button>
+                        </div>
+                    </script>
+
+                    <!--表头工具栏，每一行都有的按钮-->
+                    <script type="text/html" id="FederateListBar">
+                        <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="delete">删除</a>
+                    </script>
+                </div>
+            </fieldset>
+        </div>
+
+        <div >
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>联邦成员实例设置</legend>
+                <div class="layui-field-box">
+                    <table id="InitialInstance" lay-filter="InitialInstanceTableFilter">
+                    </table>
+                    <!--表格工具栏-->
+                    <script type="text/html" id="InitialInstanceToolBar">
+                        <div class="layui-btn-container">
+                            <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="getInitialInstanceData">
+                                更新实例信息
+                            </button>
+                            <button class="layui-btn layui-btn-sm layui-btn-warm" lay-event="addInitialInstanceData">
+                                添加实例化信息
+                            </button>
+                        </div>
+                    </script>
+
+                    <!--表头工具栏，每一行都有的按钮-->
+                    <script type="text/html" id="InitialInstanceBar">
+                        <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="delete">删除</a>
+                    </script>
+                </div>
+            </fieldset>
+        </div>
+
+        <div >
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>生命周期设置</legend>
+                <div class="layui-field-box">
+                    <table id="UpdateInstance" lay-filter="InitialInstanceTableFilter">
+                    </table>
+                    <!--表格工具栏-->
+                    <script type="text/html" id="UpdateInstanceToolBar">
+                        <div class="layui-btn-container">
+                            <button class="layui-btn layui-btn-sm" lay-event="addUpdateInstanceData">
+                                添加实例生命周期信息
+                            </button>
+                        </div>
+                    </script>
+
+                </div>
+            </fieldset>
+        </div>
+
+
+    </fieldset>
+
+    <script>
+        //头部工具栏
+        layui.use(['jquery', 'layer','table'],function () {
+            let table = layui.table;
+            let $ = layui.jquery;
+            let layer = layui.layer;
+            //federateList的操作代码
+            table.render({
+                elem:"#federateList",//elem绑定id属性值
+                url:"/federateInfo/getAllFederateListInfo",//后台数据接口
+                page: false ,//开启分页
+                cols:[[
+                    {field: "listId", title: '列表编号', fixed: 'left'}
+                    ,{field: "objectType", title: '列表元素类型'}
+                    ,{field:"listName",title:'列表名称'}
+                    ,{field:"federate",title:'所属联邦成员'}
+                    ,{field:'操作',title:'操作',toolbar:"#FederateListBar"}
+                ]],
+                toolbar:"#FederateListToolBar"
+            });
+            table.on('toolbar(FederateListTableFilter)',function (obj) {
+                let eventName = obj.event;
+                //判断事件名，执行对应的代码
+                switch(eventName){
+                    case "getFederateListData":
+                        table.render({
+                            elem:"#federateList",//elem绑定id属性值
+                            url:"/federateInfo/getAllFederateListInfo",//后台数据接口
+                            page: false ,//开启分页
+                            cols:[[
+                                {field: "listId", title: '列表编号', fixed: 'left'}
+                                ,{field: "objectType", title: '列表元素类型'}
+                                ,{field:"listName",title:'列表名称'}
+                                ,{field:"federate",title:'所属联邦成员'}
+                                ,{field:'操作',title:'操作',toolbar:"#FederateListBar"}
+                            ]],
+                            toolbar:"#FederateListToolBar"
+                        });
+                        break;
+                    case "addFederateListData":
+                        layer.open({
+                            type:2,
+                            title:"添加联邦参数",
+                            area:['500px','450px'],
+                            content:["layerPage/federateList.html",'yes']
+                        });
+                        break;
+                }
+            });
+
+            table.on("tool(FederateListTableFilter)",function (obj) {
+                let tr = obj.data;
+                let Info = {
+                    "listId":tr.listId
+                }
+                let eventName = obj.event;
+                let msg = '';
+                if(eventName=='delete'){
+                    //confirm 确认方法
+                    layer.confirm("您确认要删除",function(index){
+                        //删除指定tr
+                        obj.del();
+
+                        $.ajax({
+                            url:"/federateInfo/deleteFederateList",
+                            type:"POST",
+                            dataType: 'json',
+                            data:JSON.stringify(Info),
+                            contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                            success:function(result){
+                                //把obj类型转化成json类型的字符串
+                                let resJSONStr = JSON.stringify(result);
+                                let resJSON = JSON.parse(resJSONStr);
+                                msg = resJSON.obj;
+                            }
+                        });
+                        //关闭弹出层(index)是弹出层的下标
+                        layer.close(index);
+                    });
+                }
+            });
+
+            //startInformation的表
+            table.render({
+                elem:"#InitialInstance",//elem绑定id属性值
+                url:"/federateInfo/getAllInitialInstanceInfo",//后台数据接口
+                page: false ,//开启分页
+                cols:[[
+                    {field: "federateName", title: '实例所属联邦成员', fixed: 'left'}
+                    ,{field: "fedearteType", title: '联邦成员类型', fixed: 'left'}
+                    ,{field:"firstTaskId",title:'初始任务ID'}
+                    ,{field:"variableIds",title:'变量ID'}
+                    ,{field:"objectIds",title:'对象ID'}
+                    ,{field:"hasOwnEvent",title:'是否有自发任务'}
+                    ,{field:"ownEventTask",title:'自发任务ID'}
+                    ,{field:"initialInstanceTaskId",title:'初始化实例任务ID'}
+                    ,{field:"updateInstanceTaskId",title:'更新实例任务ID'}
+                ]],
+                toolbar:"#InitialInstanceToolBar"
+            });
+
+            table.on('toolbar(InitialInstanceTableFilter)',function (obj) {
+                let eventName = obj.event;
+                //判断事件名，执行对应的代码
+                switch(eventName){
+                    case "getInitialInstanceData":
+                        //startInformation的表
+                        table.render({
+                            elem:"#InitialInstance",//elem绑定id属性值
+                            url:"/federateInfo/getAllInitialInstanceInfo",//后台数据接口
+                            page: false ,//开启分页
+                            cols:[[
+                                {field: "federateName", title: '实例所属联邦成员', fixed: 'left'}
+                                ,{field: "fedearteType", title: '联邦成员类型', fixed: 'left'}
+                                ,{field:"firstTaskId",title:'初始任务ID'}
+                                ,{field:"variableIds",title:'变量ID'}
+                                ,{field:"objectIds",title:'对象ID'}
+                                ,{field:"hasOwnEvent",title:'是否有自发任务'}
+                                ,{field:"ownEventTask",title:'自发任务ID'}
+                                ,{field:"initialInstanceTaskId",title:'初始化实例任务ID'}
+                                ,{field:"updateInstanceTaskId",title:'更新实例任务ID'}
+                            ]],
+                            toolbar:"#InitialInstanceToolBar"
+                        });
+                        break;
+                    case "addInitialInstanceData":
+                        layer.open({
+                            type:2,
+                            title:"",
+                            area:['500px','400px'],
+                            content:["layerPage/federateInstance.html",'yes']
+                        });
+                        break;
+                    case "addUpdateInstanceData":
+                        layer.open({
+                            type:2,
+                            title:"",
+                            area:['500px','400px'],
+                            content:["layerPage/updateInstance.html",'yes']
+                        });
+                        break;
+                }
+            });
+
+
+            //updateInstance的表
+            table.render({
+                elem:"#InitialInstance",//elem绑定id属性值
+                url:"/federateInfo/getAllUpdateInstanceInfo",//后台数据接口
+                page: false ,//开启分页
+                cols:[[
+                    {field: "federateName", title: '实例所属联邦成员', fixed: 'left'}
+                    ,{field: "fedearteType", title: '联邦成员类型', fixed: 'left'}
+                    ,{field:"firstTaskId",title:'初始任务ID'}
+                    ,{field:"variableIds",title:'变量ID'}
+                    ,{field:"objectIds",title:'对象ID'}
+                    ,{field:"hasOwnEvent",title:'是否有自发任务'}
+                    ,{field:"ownEventTask",title:'自发任务ID'}
+                    ,{field:"initialInstanceTaskId",title:'初始化实例任务ID'}
+                    ,{field:"updateInstanceTaskId",title:'更新实例任务ID'}
+                ]],
+                toolbar:"#InitialInstanceToolBar"
+            });
+
+        });
+    </script>
+</div>
+</body>
+</html>

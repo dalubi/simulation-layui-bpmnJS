@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>离散事件仿真系统</title>
+    <link type="text/css" rel="stylesheet" href="../layui/css/layui.css">
+    <script type="text/javascript" src="../layui/layui.js"></script>
+</head>
+<body>
+
+
+<div style="margin-left: 20px ; margin-top: 20px ;width: 1200px">
+    <fieldset class="layui-elem-field">
+        <legend style="font-size: 40px">仿真代码生成</legend>
+        <div class="layui-field-box">
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>使用离散事件仿真的配置文件生成仿真代码</legend>
+                <div class="layui-field-box">
+                    <div class="layui-field-box" style="margin-left: 40px">
+                        <button type="button" class="layui-btn layui-btn-primary" id="xmlFile" style="margin-left: 20px">
+                            选择文件
+                        </button>
+                        <button type="button" class="layui-btn layui-btn-primary" id="sub" style="margin-left: 20px">
+                           提交
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>仿真代码在线部署与运行</legend>
+                <div class="layui-field-box">
+                    <div class="layui-field-box" style="margin-left: 40px">
+                        <button type="button" class="layui-btn layui-btn-normal"  style="margin-left: 20px">
+                           下载仿真代码
+                        </button>
+                        <button type="button" class="layui-btn layui-btn-warm" style="margin-left: 20px">
+                            在线部署
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </fieldset>
+</div>
+
+<script>
+
+    layui.use(['upload','layer','jquery','form'], function(){
+        var upload = layui.upload;
+        var layer = layui.layer;
+        let form = layui.form;
+        let $ = layui.jquery;
+
+        //执行实例
+        var uploadInst = upload.render({
+            elem: '#bpmnFile'  //绑定按钮id
+            ,url: 'http://localhost:8080/uploadBpmnFile'  //上传接口
+            ,accept: 'file'  //接收类型为文件
+            ,auto: false   //不允许自动上传，与下一行配合使用
+            ,bindAction: '#sub'  //监听到点击提交按钮id=sub才可以上传
+            ,exts: 'xml'   //接收文件后缀限定为csv（也可修改为其他）
+            ,done: function(res){
+                //把obj类型转化成json类型的字符串
+                let resJSONStr = JSON.stringify(res);
+                let resJSON = JSON.parse(resJSONStr);
+                layer.open({
+                       type:0,
+                       title:"BPMN上传情况",
+                       content:resJSON.obj
+                });
+            }
+            ,error: function(){
+                //请求异常回调
+            }
+        });
+
+        form.on('submit(cleanButton)', function(data){
+            $.ajax({
+                url:"/cleanData",
+                type:"get",
+                dataType:"text",
+                data:"",
+                success:function(result){
+                    let resJSON = JSON.parse(result);
+                    let msg = resJSON.obj;
+                    layui.layer.msg(msg)
+                }
+            });
+        });
+
+
+
+    });
+    function myFunction(){
+        let layer = layui.layer;
+        layer.open({
+            type:2,
+            title:"联邦成员选中后的初始化",
+            area:['1000px','700px'],
+            content:["../../resources/bpmnjs/dist/index.html",'no']
+        });
+    }
+
+
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>交互类信息</title>
+    <link type="text/css" rel="stylesheet" href="../layui/css/layui.css">
+    <script type="text/javascript" src="../layui/layui.js"></script>
+</head>
+<body>
+<div style="margin-left: 20px ; margin-top: 20px ;width: 1200px">
+    <fieldset class="layui-elem-field">
+        <legend style="font-size: 40px">初始化仿真联邦基本参数</legend>
+
+        <div>
+            <fieldset class="layui-elem-field layui-field-title">
+                <div class="layui-field-box">
+                    <div >
+                        <fieldset class="layui-elem-field layui-field-title">
+                            <legend>仿真联邦属性设置</legend>
+
+                            <table id="FederateInfo" lay-filter="FederateInfoTableFilter">
+                            </table>
+
+                            <!--表头工具栏，每一行都有的按钮-->
+                            <script type="text/html" id="FederateInfoBar">
+                                <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="choose">选择</a>
+                            </script>
+
+                            <!--表格工具栏-->
+                            <script type="text/html" id="FederateInfoToolBar">
+                                <div class="layui-btn-container">
+                                    <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="getFederateInfoData">
+                                        更新所有仿真对象信息
+                                    </button>
+                                </div>
+                            </script>
+
+                        </fieldset>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div >
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>仿真对象信息的设置</legend>
+                <div class="layui-field-box">
+
+                    <table id="federateObject" lay-filter="FederateObjectTableFilter">
+                    </table>
+
+                    <!--表格工具栏-->
+                    <script type="text/html" id="FederateObjectToolBar">
+                        <div class="layui-btn-container">
+                            <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="getFederateObjectData">
+                                更新所有仿真对象信息
+                            </button>
+                            <button class="layui-btn layui-btn-sm layui-btn-warm" lay-event="addFederateObjectData">
+                                添加一个仿真对象信息
+                            </button>
+                        </div>
+                    </script>
+
+                    <!--表头工具栏，每一行都有的按钮-->
+                    <script type="text/html" id="FederateObjectBar">
+                        <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="delete">删除</a>
+                    </script>
+
+
+                </div>
+            </fieldset>
+        </div>
+
+        <div >
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>仿真全局变量设置</legend>
+                <div class="layui-field-box">
+
+                    <table id="FederateVariable" lay-filter="FederateVariableTableFilter">
+                    </table>
+
+                    <!--表格工具栏-->
+                    <script type="text/html" id="FederateVariableToolBar">
+                        <div class="layui-btn-container">
+                            <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="getFederateVariableData">
+                                更新所有仿真全局变量信息
+                            </button>
+                            <button class="layui-btn layui-btn-sm layui-btn-warm" lay-event="addFederateVariableData">
+                                添加一个仿真全局变量信息
+                            </button>
+                        </div>
+                    </script>
+
+                    <!--表头工具栏，每一行都有的按钮-->
+                    <script type="text/html" id="FederateVariableBar">
+                        <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="delete">删除</a>
+                    </script>
+
+
+                </div>
+            </fieldset>
+        </div>
+
+    </fieldset>
+
+    <script>
+        //头部工具栏
+        layui.use(['jquery', 'layer','table'],function () {
+            let table = layui.table;
+            let $ = layui.jquery;
+
+            let layer = layui.layer;
+
+            //federate的操作代码
+            table.render({
+                elem:"#FederateInfo",//elem绑定id属性值
+                url:"/federateInfo/getAllFederateInfos",//后台数据接口
+                page: false ,//开启分页
+                cols:[[
+                    {field: 'federateName', title: '联邦成员名称', fixed: 'left'}
+                    // ,{field:'federation',title:'所属联邦'}
+                    // ,{field:'federationNickName',title:'所属联邦的别名'}
+                    ,{field:'操作',title:'设置联邦成员属性和初始化任务',toolbar:"#FederateInfoBar"}
+                ]],
+                toolbar:"#FederateInfoToolBar"
+            });
+
+            table.on('toolbar(FederateInfoTableFilter)',function (obj) {
+                let eventName = obj.event;
+                //判断事件名，执行对应的代码
+                switch(eventName){
+                    case "getFederateInfoData":
+                        table.render({
+                            elem:"#FederateInfo",//elem绑定id属性值
+                            url:"/federateInfo/getAllFederateInfos",//后台数据接口
+                            page: false ,//开启分页
+                            cols:[[
+                                {field: 'federateName', title: '联邦成员名称', fixed: 'left'}
+                                // ,{field:'federation',title:'所属联邦'}
+                                // ,{field:'federationNickName',title:'所属联邦的别名'}
+                                ,{field:'操作',title:'设置联邦成员属性和初始化任务',toolbar:"#FederateInfoBar"}
+                            ]],
+                            toolbar:"#FederateInfoToolBar"
+                        });
+                        break;
+                }
+            });
+
+
+            table.on("tool(FederateInfoTableFilter)",function (obj) {
+                //得到当前操作行的相关信息，这是一个json，或者javascript的对象
+                let tr = obj.data;
+
+                //得到事件名
+                let eventName = obj.event;
+
+                let federateData = {
+                    "federate":tr.federateName,
+                    // "federation":tr.federation
+                }
+
+                //判断事件名，执行对应方法
+                if(eventName=='choose'){
+                    $.ajax({
+                        url:"/federateInfo/setTheChosenFederate",
+                        type:"POST",
+                        dataType: 'json',
+                        data:JSON.stringify(federateData),
+                        contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                        success:function(result){
+                            layer.confirm("您已选中联邦成员"+federateData.federate+"，是否填写初始化信息",function (index) {
+                                //确认之后打开
+                                layer.open({
+                                    type:2,
+                                    title:"联邦成员选中后的初始化",
+                                    area:['460px','250px'],
+                                    content:["layerPage/federateInitialize.html",'no']
+                                });
+                                layer.close(index);
+                            })
+                        }
+                    });
+                }
+            });
+
+            //federateObject--------------------------------------------------------------------------
+            table.render({
+                elem:"#federateObject",//elem绑定id属性值
+                url:"/federateInfo/getAllFederateObjectsInfo",//后台数据接口
+                page: false ,//开启分页
+                cols:[[
+                    {field: 'objectId', title: '对象编号', fixed: 'left'}
+                    ,{field:'objectName',title:'对象名称'}
+                    ,{field:'federate',title:'所有联邦成员'}
+                    ,{field: 'InitialId', title: '对象实例编号'}
+                    ,{field: 'objectDescription', title: '对象信息描述'}
+                    ,{field:'操作',title:'操作',toolbar:"#FederateObjectBar"}
+                ]],
+                toolbar:"#FederateObjectToolBar"
+            });
+
+            table.on('toolbar(FederateObjectTableFilter)',function (obj) {
+                let eventName = obj.event;
+                //判断事件名，执行对应的代码
+                switch(eventName){
+                    case "getFederateObjectData":
+                        table.render({
+                            elem:"#federateObject",//elem绑定id属性值
+                            url:"/federateInfo/getAllFederateObjectsInfo",//后台数据接口
+                            page: false ,//开启分页
+                            cols:[[
+                                {field: 'objectId', title: '对象编号', fixed: 'left'}
+                                ,{field:'objectName',title:'对象名称'}
+                                ,{field:'federate',title:'所有联邦成员'}
+                                ,{field: 'InitialId', title: '对象实例编号'}
+                                ,{field: 'objectDescription', title: '对象信息描述'}
+                                ,{field:'操作',title:'操作',toolbar:"#FederateObjectBar"}
+                            ]],
+                            toolbar:"#FederateObjectToolBar"
+                        });
+                        break;
+
+                    case "addFederateObjectData":
+                        layer.open({
+                            type:2,
+                            title:"添加联邦参数",
+                            area:['500px','400px'],
+                            content:["layerPage/federateObject.html",'yes']
+                        });
+                        break;
+                }
+            });
+
+            table.on("tool(FederateObjectTableFilter)",function (obj) {
+                let tr = obj.data;
+                let Info = {
+                    "objectId":tr.objectId
+                }
+                let eventName = obj.event;
+                let msg = '';
+                if(eventName=='delete'){
+                    //confirm 确认方法
+                    layer.confirm("您确认要删除",function(index){
+                        //删除指定tr
+                        obj.del();
+
+                        $.ajax({
+                            url:"/federateInfo/deleteFederateObject",
+                            type:"POST",
+                            dataType: 'json',
+                            data:JSON.stringify(Info),
+                            contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                            success:function(result){
+                                //把obj类型转化成json类型的字符串
+                                let resJSONStr = JSON.stringify(result);
+                                let resJSON = JSON.parse(resJSONStr);
+                                msg = resJSON.obj;
+                            }
+                        });
+
+                        //关闭弹出层(index)是弹出层的下标
+                        layer.close(index);
+                    });
+                }
+            });
+
+
+            //FederateVariable 的操作代码 --------------------------------------------------------------------------
+            table.render({
+                elem:"#FederateVariable",//elem绑定id属性值
+                url:"/federateInfo/getAllFederateVariable",//后台数据接口
+                page: false ,//开启分页
+                cols:[[
+                    {field: 'variableId', title: '变量编号', fixed: 'left'}
+                    ,{field: 'variableName', title: '变量名称'}
+                    ,{field:'variableType',title:'变量类型'}
+                    ,{field:'isStatic',title:'是否为静态变量'}
+                    ,{field:'InitialValue',title:'变量初始值'}
+                    ,{field:'federate',title:'所属联邦成员'}
+                    ,{field:'操作',title:'操作',toolbar:"#FederateVariableBar"}
+                ]],
+                toolbar:"#FederateVariableToolBar"
+            });
+
+            table.on('toolbar(FederateVariableTableFilter)',function (obj) {
+                let eventName = obj.event;
+                //判断事件名，执行对应的代码
+                switch(eventName){
+                    case "getFederateVariableData":
+                        table.render({
+                            elem:"#FederateVariable",//elem绑定id属性值
+                            url:"/federateInfo/getAllFederateVariable",//后台数据接口
+                            page: false ,//开启分页
+                            cols:[[
+                                {field: 'variableId', title: '变量编号', fixed: 'left'}
+                                ,{field: 'variableName', title: '变量名称'}
+                                ,{field:'variableType',title:'变量类型'}
+                                ,{field:'isStatic',title:'是否为静态变量'}
+                                ,{field:'InitialValue',title:'变量初始值'}
+                                ,{field:'federate',title:'所属联邦成员'}
+                                ,{field:'操作',title:'操作',toolbar:"#FederateVariableBar"}
+                            ]],
+                            toolbar:"#FederateVariableToolBar"
+                        });
+                        break;
+                   case "addFederateVariableData":
+                       layer.open({
+                           type:2,
+                           title:"添加联邦参数",
+                           area:['500px','400px'],
+                           content:["layerPage/federateVariable.html",'yes']
+                       });
+                       break;
+                }
+            });
+
+
+            table.on("tool(FederateVariableTableFilter)",function (obj) {
+                let tr = obj.data;
+                let Info = {
+                    "variableId":tr.variableId
+                }
+                let eventName = obj.event;
+                let msg = '';
+                if(eventName=='delete'){
+                    //confirm 确认方法
+                    layer.confirm("您确认要删除",function(index){
+
+                        console.log(Info);
+
+                        //删除指定tr
+                        obj.del();
+
+                        $.ajax({
+                            url:"/federateInfo/deleteFederateVariable",
+                            type:"POST",
+                            dataType: 'json',
+                            data:JSON.stringify(Info),
+                            contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                            success:function(result){
+                                //把obj类型转化成json类型的字符串
+                                let resJSONStr = JSON.stringify(result);
+                                let resJSON = JSON.parse(resJSONStr);
+                                msg = resJSON.obj;
+                            }
+                        });
+
+                        //关闭弹出层(index)是弹出层的下标
+                        layer.close(index);
+                    });
+                }
+            });
+        });
+    </script>
+</div>
+</body>
+</html>

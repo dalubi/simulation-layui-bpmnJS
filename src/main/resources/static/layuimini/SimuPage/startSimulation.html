@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>离散事件仿真系统</title>
+    <link type="text/css" rel="stylesheet" href="../layui/css/layui.css">
+    <script type="text/javascript" src="../layui/layui.js"></script>
+</head>
+<body>
+
+
+<div style="margin-left: 20px ; margin-top: 20px ;width: 1200px">
+    <fieldset class="layui-elem-field">
+        <legend style="font-size: 40px">仿真流程启动</legend>
+        <div class="layui-field-box">
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>启动仿真联邦成员</legend>
+                <div class="layui-field-box">
+                    <div class="layui-field-box" >
+                        <table id="FederateStart" lay-filter="FederateStartTableFilter">
+                        </table>
+
+                        <!--表头工具栏，每一行都有的按钮-->
+                        <script type="text/html" id="FederateStartBar">
+                            <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="start">启动</a>
+                        </script>
+
+                        <!--表格工具栏-->
+                        <script type="text/html" id="FederateStartToolBar">
+                            <div class="layui-btn-container">
+                                <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="getFederateStartData">
+                                    更新联邦成员启动信息
+                                </button>
+                            </div>
+                        </script>
+
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </fieldset>
+</div>
+
+<script>
+    layui.use(['jquery', 'layer','table'],function () {
+        var upload = layui.upload;
+        var layer = layui.layer;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let table = layui.table;
+
+        table.render({
+            elem:"#FederateStart",//elem绑定id属性值
+            url:"/getFederateStart",//后台数据接口
+            cols:[[
+                {field: 'federate', title: '仿真联邦成员名称', fixed: 'left'}
+                ,{field: "操作",title:'操作',toolbar:"#FederateStartBar"}//设置表头工具栏
+            ]],
+            toolbar:"#FederateStartToolBar"
+        });
+    });
+
+</script>
+
+
+
+</body>
+</html>

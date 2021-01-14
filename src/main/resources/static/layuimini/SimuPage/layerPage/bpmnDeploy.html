@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>部署BPMN</title>
+    <link type="text/css" rel="stylesheet" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+</head>
+<body>
+<div >
+
+    <fieldset class="layui-elem-field layui-field-title" style="width: 480px;margin-left: 10px;margin-right: 10px;margin-top: 10px">
+        <legend>上传并部署BPMN</legend>
+        <br />
+
+            <div class="layui-field-box">
+                <button type="button" class="layui-btn layui-btn-primary" id="bpmnFile" style="margin-left: 20px">
+                    选择文件
+                </button>
+                <button type="button" class="layui-btn layui-btn-primary" id="sub" style="margin-left: 20px">
+                    <i class="layui-icon">&#xe67c;</i>提交
+                </button>
+            </div>
+
+    </fieldset>
+
+
+
+
+</div>
+<script>
+    layui.use(['upload','layer'], function(){
+        var upload = layui.upload;
+        var layer = layui.layer;
+        //执行实例
+        var uploadInst = upload.render({
+            elem: '#bpmnFile'  //绑定按钮id
+            ,url: 'http://localhost:8080/activiti/deployBPMN'  //上传接口
+            ,accept: 'file'  //接收类型为文件
+            ,auto: false   //不允许自动上传，与下一行配合使用
+            ,bindAction: '#sub'  //监听到点击提交按钮id=sub才可以上传
+            ,exts: 'bpmn'   //接收文件后缀限定为csv（也可修改为其他）
+            ,done: function(res){
+                //把obj类型转化成json类型的字符串
+                let resJSONStr = JSON.stringify(res);
+                let resJSON = JSON.parse(resJSONStr);
+                layer.msg(resJSON.obj);
+            }
+            ,error: function(){
+                //请求异常回调
+            }
+        });
+    });
+
+</script>
+</body>
+</html>

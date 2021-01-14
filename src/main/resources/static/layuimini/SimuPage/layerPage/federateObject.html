@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>联邦对象表单</title>
+    <link type="text/css" rel="stylesheet" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+</head>
+<body>
+    <div >
+
+        <fieldset class="layui-elem-field layui-field-title" style="width: 480px;margin-left: 10px;margin-right: 10px;margin-top: 10px">
+            <legend>联邦对象表单</legend>
+            <br />
+            <form class="layui-form" id="formid" action="">
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px">对象名称：</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="objectName" required  lay-verify="required" placeholder="联邦对象名称" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px">初始化ID：</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="InitialId" required  lay-verify="required" placeholder="非实例对象填写-1" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px">联邦成员名：</label>
+                    <div class="layui-input-inline">
+                        <select name="federate" lay-verify="required" lay-filter="federateFilter" id="federateId">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="width: 100px">属性数目：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="attributeCount" name="attributeCount" required  lay-verify="required" placeholder="填写当前对象具有的属性数" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button type="button" class="layui-btn" onclick="addAttribute()">添加属性</button>
+<!--                        <button type="button" class="layui-btn" lay-submit lay-filter="formDemo" >添加属性</button>-->
+                    </div>
+                </div>
+
+
+                <div id="insertPos"></div>
+
+                <div class="layui-inline">
+                    <button type="button" class="layui-btn layui-btn-normal"  lay-submit lay-filter="formDemo" style="margin-left: 350px">提交</button>
+                </div>
+            </form>
+        </fieldset>
+
+
+    </div>
+
+<script>
+
+    //先请求获得信息，在使用layui渲染
+
+
+    //参数信息
+    layui.use(['jquery', 'layer','table'],function () {
+        let $ = layui.jquery;
+        let form = layui.form;
+
+        $.ajax({
+            url:"/federateObjectPage/getAllFederateNames",
+            type:"POST",
+            dataType: 'json',
+            data:"",
+            contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+            success:function(result){
+                //把obj类型转化成json类型的字符串
+                let resJSONStr = JSON.stringify(result);
+                let resJSON = JSON.parse(resJSONStr);
+
+                let option = '';
+                for(let i=0;i<resJSON.obj.length;i++){
+                    //循环获取返回值，并组装成html代码
+                    option +="<option value='"+resJSON.obj[i]["federate"]+"'>"+resJSON.obj[i]["federate"]+"</option>";
+                }
+                $("#federateId").html("");
+                $("#federateId").append(option);
+                form.render();
+            }
+        });
+
+            form.on('submit(formDemo)', function(data){
+                var formId = "#formid";
+                var startInfoData = $(formId).serializeArray();
+                $.ajax({
+                    url:"/federateInfo/federateobject",
+                    type:"post",
+                    dataType:"text",
+                    data: startInfoData,
+                    success:function(result){
+                        let resJSON = JSON.parse(result);
+                        let msg = resJSON.obj;
+                        layui.layer.msg(msg)
+                    }
+                });
+
+            });
+
+    });
+
+    function addAttribute() {
+        var elementById = document.getElementById("attributeCount");
+        //alert(elementById.value);
+        let count = elementById.value;
+        let html = "                <div class=\"layui-form-item\">\n" +
+            "                    <div class=\"layui-inline\">\n" +
+            "                        <label class=\"layui-form-label\">名称:</label>\n" +
+            "                        <div class=\"layui-input-inline\" style=\"width: 100px;\">\n" +
+            "                            <input type=\"text\" name=\"parameterName\" placeholder=\"属性名\" autocomplete=\"off\" class=\"layui-input\">\n" +
+            "                        </div>\n" +
+            "                        <div class=\"layui-form-mid\">类型:</div>\n" +
+            "                        <div class=\"layui-input-inline\" style=\"width: 180px;\">\n" +
+            "                            <input type=\"text\" name=\"parameterType\" placeholder=\"string,int,double,boolean\" autocomplete=\"off\" class=\"layui-input\">\n" +
+            "                        </div>\n" +
+            "                    </div>\n" +
+            "                </div>\n";
+        var elementById1 = document.getElementById("insertPos");
+        for(let i=0;i<count;i++){
+            elementById1.insertAdjacentHTML("beforebegin",html);
+        }
+        layui.form.render();
+    }
+
+</script>
+</body>
+</html>

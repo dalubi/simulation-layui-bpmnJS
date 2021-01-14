@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加一个外部事件</title>
+    <link type="text/css" rel="stylesheet" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+</head>
+<body>
+<div >
+
+    <fieldset class="layui-elem-field layui-field-title" style="width: 480px;margin-left: 10px;margin-right: 10px;margin-top: 10px">
+        <legend>Event作用联邦成员变量</legend>
+        <br />
+
+        <form class="layui-form" id="formid" action="">
+            <br />
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width: 200px">依赖变量名称：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="qualified_attribute" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+<!--            <div class="layui-form-item">-->
+<!--                <label class="layui-form-label" style="width: 200px">依赖变量名称：</label>-->
+<!--                <div class="layui-input-inline">-->
+<!--                    <select name="qualified_attribute" lay-verify="required" lay-filter="qualified_attributeFilter" id="qualified_attributeId">-->
+<!--                        <option value=""></option>-->
+<!--                    </select>-->
+<!--                </div>-->
+<!--            </div>-->
+
+
+            <div class="layui-form-item ">
+                <label class="layui-form-label" style="width: 200px">范围数目类型：</label>
+                <div class="layui-input-inline">
+                    <input type="radio" name="type" value="single" title="单一范围">
+                    <input type="radio" name="type" value="multiple" title="多数范围" checked>
+                </div>
+            </div>
+
+            <button type="button" id="addScopeButtonId" class="layui-btn" style="margin-left: 300px" onclick="addScope()" >添加范围区间</button>
+
+            <br /><br />
+
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width: 200px">范围区间：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="scope" required  lay-verify="required" placeholder="用-分开两个范围，如1-100" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div id="addPosition"></div>
+
+            <br />
+
+            <div class="layui-form-item" style="margin-left: 140px">
+                <div class="layui-input-block">
+                    <button class="layui-btn layui-btn-normal" lay-submit lay-filter="formScope">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+
+
+    </fieldset>
+
+
+
+
+</div>
+<script>
+    layui.use(['jquery', 'layer','table'],function () {
+        let $ = layui.jquery;
+        let form = layui.form;
+
+        //ajax获取依赖变量的select
+        //ajax获取获取有哪些变量
+        // $.ajax({
+        //     url:"/externalEvent/getFederateVariables",
+        //     type:"POST",
+        //     dataType: 'json',
+        //     data:"",
+        //     contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+        //     success:function(result){
+        //         //把obj类型转化成json类型的字符串
+        //         let resJSONStr = JSON.stringify(result);
+        //         let resJSON = JSON.parse(resJSONStr);
+        //
+        //         let option = '';
+        //         for(let i=0;i<resJSON.obj.length;i++){
+        //             //循环获取返回值，并组装成html代码
+        //             option +="<option value='"+resJSON.obj[i]["variableName"]+"'>"+resJSON.obj[i]["variableName"]+"</option>";
+        //         }
+        //         $("#qualified_attributeId").html("");
+        //         $("#qualified_attributeId").append(option);
+        //         form.render();
+        //     }
+        // });
+
+
+        form.on('submit(formScope)', function(data){
+            var formId = "#formid";
+            let Data = $(formId).serializeArray();
+            $.ajax({
+                url:"/externalEvent/addFederateScope",
+                type:"POST",
+                dataType:"text",
+                data: Data,
+                success:function(result){
+                }
+            });
+        });
+
+
+    });
+
+    function addScope() {
+        let html ='            <div class="layui-form-item">\n' +
+            '                <label class="layui-form-label" style="width: 200px">范围区间：</label>\n' +
+            '                <div class="layui-input-inline">\n' +
+            '                    <input type="text" name="scope" required  lay-verify="required" placeholder="用-分开两个范围，如1-100" autocomplete="off" class="layui-input">\n' +
+            '                </div>\n' +
+            '            </div>';
+        var elementById = document.getElementById("addPosition");
+        elementById.insertAdjacentHTML("beforeEnd",html);
+    }
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>联邦成员初始化表单</title>
+    <link type="text/css" rel="stylesheet" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+</head>
+<body>
+
+<form class="layui-form " action="">
+    <br />
+    <div class="layui-form-item ">
+        <label class="layui-form-label" style="width: 200px">联邦成员(FEDERATE)的类型:</label>
+        <div class="layui-input-inline">
+            <select name="isFirst" lay-verify="required">
+                <option value=""></option>
+                <option value="0">普通联邦成员</option>
+                <option value="1">起始联邦成员</option>
+                <option value="-1">外部事件联邦成员</option>
+            </select>
+        </div>
+    </div>
+
+
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 200px">是否有初始任务:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="firstTask" required  lay-verify="required" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+
+
+    <div class="layui-form-item" style="margin-left: 100px">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    //Demo
+    layui.use(['form','jquery'], function(){
+        var form = layui.form;
+        let $ = layui.jquery;
+
+        form.on('submit(formDemo)', function(data){
+            Info={
+                "isFirst":data.field.isFirst,
+                "firstTask":data.field.firstTask
+            };
+
+            $.ajax({
+                url:"/federateInfo/addFederateInitialize",
+                type:"POST",
+                dataType: 'json',
+                data:JSON.stringify(Info),
+                contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                success:function(result){
+                    //把obj类型转化成json类型的字符串
+                    let resJSONStr = JSON.stringify(result);
+                    let resJSON = JSON.parse(resJSONStr);
+                    layer.msg(resJSON.obj);
+                }
+            });
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+    });
+</script>
+</body>
+</html>

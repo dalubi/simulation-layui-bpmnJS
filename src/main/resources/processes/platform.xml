@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://www.activiti.org/test" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test" id="m1586786943177" name="">
+ <process id="platform" name="platform" isExecutable="true" isClosed="false" processType="None">
+<userTask id="Activity_0moczfa" name="接收顾客上传信息"><documentation id="s9cbb58b8-b105-45c5-ab36-02ee66416fe0">send_waitingInfo,null</documentation></userTask>
+<sequenceFlow id="s51965713-7599-446e-8ed2-760dbf0188dd" sourceRef="Activity_0moczfa" targetRef="Event_075yvqo"/>
+<endEvent id="Event_075yvqo" />
+<startEvent id="sc3461fd9-bb34-4e13-8728-0e277311402c" />
+<sequenceFlow id="sa788d683-edcc-43c4-a0cf-ff21a4d05168" sourceRef="sc3461fd9-bb34-4e13-8728-0e277311402c" targetRef="Activity_0moczfa"/>
+	</process>
+</definitions>

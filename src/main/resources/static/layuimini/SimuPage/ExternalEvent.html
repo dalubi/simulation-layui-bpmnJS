@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>交互类信息</title>
+    <link type="text/css" rel="stylesheet" href="../layui/css/layui.css">
+    <script type="text/javascript" src="../layui/layui.js"></script>
+</head>
+<body>
+<div style="margin-left: 20px ; margin-top: 20px ;width: 1200px">
+    <legend style="font-size: 40px">外部事件</legend>
+    <div>
+        <fieldset class="layui-elem-field layui-field-title">
+            <!--外部事件表-->
+            <div class="layui-field-box">
+                <div >
+                    <fieldset class="layui-elem-field layui-field-title">
+                        <legend>外部事件信息</legend>
+
+                        <table id="ExternalEvent" lay-filter="ExternalEventTableFilter">
+                        </table>
+
+                        <!--表头工具栏，每一行都有的按钮-->
+                        <script type="text/html" id="ExternalEventBar">
+                            <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="addActionAttribute">添加Event作用变量</a>
+                            <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="deleteExternalEvent">删除</a>
+                        </script>
+
+                        <!--表格工具栏-->
+                        <script type="text/html" id="ExternalEventToolBar">
+                            <div class="layui-btn-container">
+                                <button class="layui-btn layui-btn-sm layui-btn-danger" lay-event="getExternalEventData">
+                                    更新外部事件
+                                </button>
+                                <button class="layui-btn layui-btn-sm layui-btn-warm" lay-event="addExternalEventData">
+                                    添加外部事件
+                                </button>
+                                <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="generateExternalEventFederate">
+                                    外部事件生成联邦成员
+                                </button>
+                            </div>
+                        </script>
+
+                    </fieldset>
+
+
+                </div>
+            </div>
+
+            <!--作用变量表-->
+            <div>
+                <fieldset class="layui-elem-field layui-field-title">
+                    <legend>外部事件作用变量信息</legend>
+                    <table id="ActionAttribute" lay-filter="ActionAttributeTableFilter">
+                    </table>
+
+                    <!--表头工具栏，每一行都有的按钮-->
+                    <script type="text/html" id="ActionAttributeBar">
+                        <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="addScopes">增加依赖变量信息</a>
+                        <a class="layui-btn layui-btn-warm layui-btn-sm" lay-event="noScope">设置无依赖变量</a>
+                        <a class="layui-btn layui-btn-normail layui-btn-sm" lay-event="delete">删除作用</a>
+                    </script>
+
+                    <!--表格工具栏-->
+                    <script type="text/html" id="ActionAttributeToolBar">
+                        <div class="layui-btn-container">
+                            <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="getActionAttributes">
+                                更新Event作用变量
+                            </button>
+                        </div>
+                    </script>
+                </fieldset>
+            </div>
+
+            <!--dependon 变量-->
+            <div>
+
+                <fieldset class="layui-elem-field layui-field-title">
+                    <legend>变量作用范围信息</legend>
+                    <table id="Scopes" lay-filter="ScopesTableFilter">
+                    </table>
+
+                    <!--表头工具栏，每一行都有的按钮-->
+                    <script type="text/html" id="ScopesBar">
+                        <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="modify">修改</a>
+                        <a class="layui-btn layui-btn-warm layui-btn-sm" lay-event="delete">删除</a>
+                    </script>
+
+                    <!--表格工具栏-->
+                    <script type="text/html" id="ScopesToolBar">
+                        <div class="layui-btn-container">
+                            <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="getActionAttributes">
+                                更新
+                            </button>
+                        </div>
+                    </script>
+                </fieldset>
+
+            </div>
+
+        </fieldset>
+    </div>
+
+    </fieldset>
+</div>
+    <script>
+        //头部工具栏
+        layui.use(['jquery', 'layer','table'],function () {
+            let table = layui.table;
+            let $ = layui.jquery;
+            let layer = layui.layer;
+
+            //ExternalEvent的操作代码 -------------------------------------------------------------------------
+            table.render({
+                elem:"#ExternalEvent",//elem绑定id属性值
+                url:"/externalEvent/getExternalEventInfo",//获取设置的外部事件
+                page: false ,//开启分页
+                cols:[[
+                    {field: "externalEventId", title: '外部事件编号', fixed: 'left'}
+                    ,{field: "interactionName", title: '交互类名称'}
+                    ,{field: "tofederate", title: '外部事件影响的联邦成员'}
+                    ,{field: "probability", title: '可能性'}
+                    ,{field: "actionType", title: '作用类型'}
+                    ,{field:'操作',title:'操作',toolbar:"#ExternalEventBar"}
+                ]],
+                toolbar:"#ExternalEventToolBar"
+            });
+
+
+            table.on('toolbar(ExternalEventTableFilter)',function (obj) {
+                let eventName = obj.event;
+
+                //判断事件名，执行对应的代码
+                switch(eventName){
+                    case "getExternalEventData":
+                        table.render({
+                            elem:"#ExternalEvent",//elem绑定id属性值
+                            url:"/externalEvent/getExternalEventInfo",//获取设置的外部事件
+                            page: false ,//开启分页
+                            cols:[[
+                                {field: "externalEventId", title: '外部事件编号', fixed: 'left'}
+                                ,{field: "interactionName", title: '交互类名称'}
+                                ,{field: "tofederate", title: '外部事件影响的联邦成员'}
+                                ,{field: "probability", title: '可能性'}
+                                ,{field: "actionType", title: '作用类型'}
+                                ,{field:'操作',title:'操作',toolbar:"#ExternalEventBar"}
+                            ]],
+                            toolbar:"#ExternalEventToolBar"
+                        });
+                        break;
+
+                    case "addExternalEventData":
+                        layer.open({
+                            type:2,
+                            title:"添加联邦参数",
+                            area:['500px','450px'],
+                            content:["layerPage/addExternalEvent.html",'yes']
+                        });
+                        break;
+
+                    case "generateExternalEventFederate":
+                        alert("生成外部事件联邦");
+                        break;
+                }
+            });
+
+            table.on("tool(ExternalEventTableFilter)",function (obj) {
+                //得到当前操作行的相关信息，这是一个json，或者javascript的对象
+                let tr = obj.data;
+                //得到事件名
+                let eventName = obj.event;
+                let Info = {
+                    "actionType":tr.actionType,
+                    "externalEventId":tr.externalEventId
+                }
+
+                //判断事件名，执行对应方法
+                if(eventName=='addActionAttribute'){
+                    $.ajax({
+                        url:"/externalEvent/setActionAttributePre",
+                        type:"POST",
+                        dataType: 'json',
+                        data:JSON.stringify(Info),
+                        contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                        success:function(result){
+                            console.log(Info.actionType);
+                            if (Info.actionType==="联邦成员"){
+                                layer.open({
+                                    type:2,
+                                    title:"外部事件作用联邦成员变量",
+                                    area:['500px','500px'],
+                                    content:["layerPage/addAttribute.html",'yes']
+                                });
+                            }else{
+                                layer.open({
+                                    type:2,
+                                    title:"外部事件作用成员实例变量",
+                                    area:['500px','500px'],
+                                    content:["layerPage/addAttributeInstance.html",'yes']
+                                });
+                            }
+                        }
+                    });
+                }else{
+                    //delete
+
+                }
+            });
+
+            //作用变量  -------------------------------------------------------------------------
+            table.render({
+                elem:"#ActionAttribute",//elem绑定id属性值
+                url:"/externalEvent/getActionAttributeByWithoutId",//后台数据接口
+                page: false,//开启分页
+                cols:[[
+                    {field: 'name', title: 'Event作用变量名', fixed: 'left'}
+                    ,{field:'changes',title:'变量作用表达式'}
+                    ,{field: 'durationTime' , title: '持续时间'}
+                    ,{field: 'interactionName' , title: '交互类名'}
+                    ,{field: 'actionAttributeId' , title: '作用变量的ID',hide:true}
+                    ,{field:'操作',title:'操作',toolbar:"#ActionAttributeBar",width :350}
+                ]],
+                toolbar:"#ActionAttributeToolBar"
+            });
+            table.on('toolbar(ActionAttributeTableFilter)',function (obj) {
+                let eventName = obj.event;
+                //获取表单中某个字段的数据  document.getElementById("externalEventId").value
+                switch(eventName){
+                    case "getActionAttributes":
+                        //再根据外部事件编号更新影响的属性
+                        table.render({
+                            elem:"#ActionAttribute",//elem绑定id属性值
+                            url:"/externalEvent/getAllActionAttribute",//后台数据接口
+                            page: false,//开启分页
+                            cols:[[
+                                {field: 'attributeName', title: '作用变量名', fixed: 'left'}
+                                ,{field:'changes',title:'变量作用表达式'}
+                                ,{field: 'durationTime' , title: '持续时间'}
+                                ,{field: 'interactionName' , title: '交互类名'}
+                                ,{field: 'actionAttributeId' , title: '作用变量的ID',hide:true}
+                                ,{field:'操作',title:'操作',toolbar:"#ActionAttributeBar",width :350}
+                            ]],
+                            toolbar:"#ActionAttributeToolBar"
+                        });
+                        break;
+                }
+            });
+
+            table.on("tool(ActionAttributeTableFilter)",function (obj) {
+                //得到当前操作行的相关信息，这是一个json，或者javascript的对象
+                let tr = obj.data;
+                //得到事件名
+                let eventName = obj.event;
+                let Info = {
+                    "actionAttributeId":tr.actionAttributeId
+                };
+
+                //判断事件名，执行对应方法
+                if(eventName=='addScopes'){
+                    //给后台这个scope是给哪个属性的
+                    $.ajax({
+                        url:"/externalEvent/setScopePre",
+                        type:"POST",
+                        dataType: 'json',
+                        data:JSON.stringify(Info),
+                        contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                        success:function(result){
+                            //把obj类型转化成json类型的字符串
+                            let resJSONStr = JSON.stringify(result);
+                            let resJSON = JSON.parse(resJSONStr);
+                            let msg = resJSON.obj;
+                            if(msg=="1"){
+                                layer.open({
+                                    type:2,
+                                    title:"联邦成员范围设置",
+                                    area:['500px','500px'],
+                                    content:["layerPage/addScopeFederate.html",'yes']
+                                });
+                            }else{
+                                layer.open({
+                                    type:2,
+                                    title:"联邦成员实例范围设置",
+                                    area:['500px','500px'],
+                                    content:["layerPage/addScopeFederateInstance.html",'yes']
+                                });
+                            }
+                        }
+                    });
+
+                }else if (eventName=='delete'){
+                    //delete
+
+                }else{
+                    //noscope
+                    $.ajax({
+                        url:"/externalEvent/setActionAttributeNoScope",
+                        type:"POST",
+                        dataType: 'json',
+                        data:JSON.stringify(Info),
+                        contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                        success:function(result){
+                            let resJSONStr = JSON.stringify(result);
+                            let resJSON = JSON.parse(resJSONStr);
+                            layer.msg(resJSON.obj);
+                        }
+                    });
+                }
+            });
+
+
+            //作用范围信息  -------------------------------------------------------------------------
+            table.render({
+                elem:"#Scopes",//elem绑定id属性值
+                url:"/externalEvent/getAllScopes",//后台数据接口
+                page: false,//开启分页
+                cols:[[
+                    {field: 'attributeName', title: '变化变量', fixed: 'left'}
+                    ,{field:'QualifiedAttribute',title:'依赖变量'}
+                    ,{field: 'Type' , title: '范围类型'}
+                    ,{field: 'ListName' , title: '列表名称'}
+                    ,{field: 'ObejctName' , title: '实例名称'}
+                    ,{field: 'Scope' , title: '变化范围'}
+                    ,{field:'操作',title:'操作',toolbar:"#ScopesBar"}
+                ]],
+                toolbar:"#ScopesToolBar"
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加联邦成员实例化信息</title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!-- required modeler styles -->
+    <link rel="stylesheet" href="https://unpkg.com/bpmn-js@6.5.1/dist/assets/diagram-js.css">
+    <link rel="stylesheet" href="https://unpkg.com/bpmn-js@6.5.1/dist/assets/bpmn-font/css/bpmn.css">
+    <!-- modeler distro -->
+    <script src="https://unpkg.com/bpmn-js@6.5.1/dist/bpmn-modeler.development.js"></script>
+    <!-- needed for this example only -->
+    <script src="https://unpkg.com/jquery@3.3.1/dist/jquery.js"></script>
+
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <!-- example styles -->
+    <style>
+        #canvas {
+            padding: 0;
+            width: 1200px;
+            height: 400px;
+            border:5px;
+            border-style: dotted;
+            border-color: red;
+        }
+
+        .diagram-note {
+            background-color: rgba(66, 180, 21, 0.7);
+            color: White;
+            border-radius: 5px;
+            font-family: Arial;
+            font-size: 12px;
+
+            padding: 5px;
+            min-height: 16px;
+            width: 50px;
+            text-align: center;
+        }
+
+        .needs-discussion:not(.djs-connection) .djs-visual > :nth-child(1) {
+            stroke: rgba(66, 180, 21, 0.7) !important; /* color elements as red */
+        }
+
+        #save-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+        }
+    </style>
+
+    <style type="text/css">
+        input{
+            width: 200px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div id="updateInstanceDIV" >
+    <div class="jumbotron">
+        <h2>实例生命周期信息</h2><br />
+        <form id="updateInstanceForm" action="/post/updateInstance" method="post">
+            <br>
+            <div style="border: black;border-style: dotted;border-width: 2px;">
+                <br />
+                              <span>&nbsp;&nbsp;&nbsp;&nbsp;实例的名称:</span><select id="instanceSelect1" name="instanceName" ></select>
+                <br /><br />
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;活跃列表的名称:</span><select id="listSelect2" name="activeListName" ></select><br /><br />
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;休眠列表的名称:</span><select id="listSelect3" name="dormantListName" ></select><br /><br />
+            </div>
+
+            <button type="button" class="btn btn-info" style="margin-left: 270px" onclick="submitUpdateInstance()">
+                提交实例生命周期
+            </button>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    //主流程
+    findCenterName3();
+    findCenterName4();
+    findCenterName5();
+
+    function findCenterName3(){
+        //清空原有select内的数据
+        $("#listSelect2").empty();
+        $.ajax({
+            url: "/post/listSelect1",
+            type:"post",
+            dataType:"json",
+            success:function(data){
+                if (data.stateCode == 200){
+                    $("#listSelect2").append("<option value='-1'>选择加入的活跃列表</option>");
+                    //遍历 json为{id:"00",text:"aa".....},{id:"01",text:"bb".....}
+                    for(let i=0; i<data.data.length; ++i){
+                        let listName = data.data[i];
+                        $("#listSelect2").append("<option value='"+listName+"'>"+listName+"</option>");
+                    }
+                }else {
+                    alert(data.msg)
+                }
+            },
+        });
+    }
+
+    function findCenterName4(){
+        //清空原有select内的数据
+        $("#listSelect3").empty();
+        $.ajax({
+            url: "/post/listSelect1",
+            type:"post",
+            dataType:"json",
+            success:function(data){
+                if (data.stateCode == 200){
+                    $("#listSelect3").append("<option value='-1'>选择加入的休眠列表</option>");
+                    //遍历 json为{id:"00",text:"aa".....},{id:"01",text:"bb".....}
+                    for(let i=0; i<data.data.length; ++i){
+                        let listName = data.data[i];
+                        $("#listSelect3").append("<option value='"+listName+"'>"+listName+"</option>");
+                    }
+                }else {
+                    alert(data.msg)
+                }
+            },
+        });
+    }
+
+    function findCenterName5(){
+        //清空原有select内的数据
+        $("#instanceSelect1").empty();
+        $.ajax({
+            url: "/post/instanceSelect1",
+            type:"post",
+            dataType:"json",
+            success:function(data){
+                if (data.stateCode == 200){
+                    $("#instanceSelect1").append("<option value='-1'>选择实例对象</option>");
+                    //遍历 json为{id:"00",text:"aa".....},{id:"01",text:"bb".....}
+                    for(let i=0; i<data.data.length; ++i){
+                        let instanceName = data.data[i].objectName;
+                        $("#instanceSelect1").append("<option value='"+instanceName+"'>"+instanceName+"</option>");
+                    }
+                }else {
+                    alert(data.msg)
+                }
+            },
+        });
+    }
+
+
+</script>
+
+</body>
