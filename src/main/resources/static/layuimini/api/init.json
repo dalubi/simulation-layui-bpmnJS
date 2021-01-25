@@ -103,7 +103,7 @@
         },
         {
           "title": "仿真运行状态",
-          "href": "layuimini/SimuPage/fileToSimuCode.html",
+          "href": "layuimini/SimuPage/SimulationState.html",
           "icon": "fa fa-window-maximize",
           "target": "_self"
         }

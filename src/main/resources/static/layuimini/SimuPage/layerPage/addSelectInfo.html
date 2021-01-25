@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加一个外部事件</title>
+    <link type="text/css" rel="stylesheet" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+</head>
+<body>
+<div >
+
+    <fieldset class="layui-elem-field layui-field-title" style="width: 480px;margin-left: 10px;margin-right: 10px;margin-top: 10px">
+        <legend>添加Select信息</legend>
+        <br />
+
+        <form class="layui-form" id="formid" action="">
+            <br />
+            <div class="layui-form-item ">
+                <label class="layui-form-label" style="width: 200px">选择指令编号：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="selectId" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item ">
+                <label class="layui-form-label" style="width: 200px">分支任务1编号：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="branch1Id" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width: 200px">分支任务2编号：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="branch2Id" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <br />
+            <div class="layui-form-item" style="margin-left: 140px">
+                <div class="layui-input-block">
+                    <button class="layui-btn layui-btn-normal" lay-submit lay-filter="formDemo">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+
+
+    </fieldset>
+
+
+
+</div>
+<script>
+    layui.use(['jquery', 'layer','table'],function () {
+        let $ = layui.jquery;
+        let form = layui.form;
+
+        form.on('submit(formDemo)', function(data){
+
+            var formId = "#formid";
+            let Data = $(formId).serializeArray();
+            $.ajax({
+                url:"/insideTask/addSelect",
+                type:"post",
+                dataType:"text",
+                data:variableData,
+                success:function(result){
+                    alert(result);
+                }
+            });
+
+        });
+
+    });
+
+
+</script>
+</body>
+</html>

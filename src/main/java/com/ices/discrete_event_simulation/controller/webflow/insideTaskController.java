@@ -2,11 +2,10 @@ package com.ices.discrete_event_simulation.controller.webflow;
 
 import com.alibaba.fastjson.JSONObject;
 import com.ices.discrete_event_simulation.entity.HelpVariableDescription;
+import com.ices.discrete_event_simulation.entity.InsideSelect;
 import com.ices.discrete_event_simulation.entity.InsideTask;
-import com.ices.discrete_event_simulation.mapper.FederateMapper;
-import com.ices.discrete_event_simulation.mapper.HelpVariableDescriptionMapper;
-import com.ices.discrete_event_simulation.mapper.InsideTaskMapper;
-import com.ices.discrete_event_simulation.mapper.TaskMapper;
+import com.ices.discrete_event_simulation.entity.InstructionSelect;
+import com.ices.discrete_event_simulation.mapper.*;
 import com.ices.discrete_event_simulation.util.AjaxResponse;
 import com.ices.discrete_event_simulation.util.AjaxTableResponse;
 import com.ices.discrete_event_simulation.util.GlobalConfig;
@@ -112,4 +111,50 @@ public class insideTaskController {
                 GlobalConfig.ResponseCode.SUCCESS.getDesc()
                 ,"已选择成功选择内部任务！");
     }
+
+    @RequestMapping(value = "/insideTask/addInsideTask" , method = RequestMethod.POST)
+    @ResponseBody
+    public AjaxResponse addInsideTask(@RequestParam("insidetaskId") String insidetaskId,
+                                      @RequestParam("information") String information){
+
+        InsideTask insidetask=new InsideTask();
+        insidetask.setInsidetaskId(Integer.parseInt(insidetaskId));
+        insidetask.setInformation(information);
+        insidetask.setIscomplete("未完成");
+        insidetaskMapper.insert(insidetask);
+        taskMapper.insertTaskId(insidetaskId);
+
+        return AjaxResponse.AjaxData(GlobalConfig.ResponseCode.SUCCESS.getCode(),
+                GlobalConfig.ResponseCode.SUCCESS.getDesc()
+                ,"已添加内部任务："+information);
+    }
+
+    @Autowired
+    InsideSelectMapper insideSelectMapper;
+
+    @RequestMapping(value = "/insideTask/addSelect", method = RequestMethod.POST)
+    @ResponseBody
+    public AjaxResponse updateSelect(@RequestParam("selectId") String selectId,
+                               @RequestParam("branch1Id") String branch1Id,
+                               @RequestParam("branch2Id") String branch2Id){
+
+        //现在内部任务中，将select任务标记为完成状态
+        InsideSelect insideSelect=new InsideSelect();
+        insideSelect.setId(Integer.parseInt(selectId));
+        insideSelect.setIscomplete("已完成");
+        insideSelectMapper.updateInsideSelect(insideSelect);
+
+        InstructionSelect instructionselect=new InstructionSelect();
+        instructionselect.setBranch1Id(branch1Id);
+        instructionselect.setBranch2Id(branch2Id);
+        //这里问一下
+        instructionselect.setInformationName(selectId);
+        insideSelectMapper.updateInstructionSelect(instructionselect);
+
+        return AjaxResponse.AjaxData(GlobalConfig.ResponseCode.SUCCESS.getCode(),
+                GlobalConfig.ResponseCode.SUCCESS.getDesc()
+                ,"");
+    }
+
+
 }

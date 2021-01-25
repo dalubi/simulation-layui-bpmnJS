@@ -57,8 +57,8 @@
                     <!--表头工具栏，每一行都有的按钮-->
                     <script type="text/html" id="ActionAttributeBar">
                         <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="addScopes">增加依赖变量信息</a>
-                        <a class="layui-btn layui-btn-warm layui-btn-sm" lay-event="noScope">设置无依赖变量</a>
-                        <a class="layui-btn layui-btn-normail layui-btn-sm" lay-event="delete">删除作用</a>
+                        <a class="layui-btn layui-btn-warm layui-btn-sm" lay-event="noScope">设置为无依赖变量</a>
+                        <a class="layui-btn layui-btn-normail layui-btn-sm" lay-event="delete">删除</a>
                     </script>
 
                     <!--表格工具栏-->
@@ -217,6 +217,7 @@
                     ,{field:'changes',title:'变量作用表达式'}
                     ,{field: 'durationTime' , title: '持续时间'}
                     ,{field: 'interactionName' , title: '交互类名'}
+                    ,{field: 'scopeids' , title: '依赖变量ID'}
                     ,{field: 'actionAttributeId' , title: '作用变量的ID',hide:true}
                     ,{field:'操作',title:'操作',toolbar:"#ActionAttributeBar",width :350}
                 ]],
@@ -237,6 +238,7 @@
                                 ,{field:'changes',title:'变量作用表达式'}
                                 ,{field: 'durationTime' , title: '持续时间'}
                                 ,{field: 'interactionName' , title: '交互类名'}
+                                ,{field: 'scopeids' , title: '依赖变量ID'}
                                 ,{field: 'actionAttributeId' , title: '作用变量的ID',hide:true}
                                 ,{field:'操作',title:'操作',toolbar:"#ActionAttributeBar",width :350}
                             ]],

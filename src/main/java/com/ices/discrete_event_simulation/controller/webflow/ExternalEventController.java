@@ -137,10 +137,11 @@ public class ExternalEventController {
     public AjaxTableResponse getActionAttributeByWithoutId(){
         List<HashMap<String, Object>> listMap= new ArrayList<HashMap<String, Object>>();
         HashMap<String,Object> element = new HashMap<>();
-        element.put("name","无");
-        element.put("change","无");
-        element.put("durationTime","无");
-        element.put("interactionName","无");
+        element.put("name","无信息");
+        element.put("changes","无信息");
+        element.put("durationTime","无信息");
+        element.put("interactionName","无信息");
+        element.put("dependonParameter","无信息");
         listMap.add(element);
         return AjaxTableResponse.AjaxData(GlobalConfig.ResponseCode.SUCCESS.getCode(),
                 GlobalConfig.ResponseCode.SUCCESS.getDesc(),
@@ -171,6 +172,11 @@ public class ExternalEventController {
             String interactionName = externaltaskMapper.selectByMap(columnMap).get(0).getInteractionName();
             element.put("interactionName",interactionName);
             element.put("actionAttributeId",aa.getId());
+            if(aa.getScopeids()==null||aa.getScopeids().equals("null")){
+                element.put("scopeids","无依赖变量");
+            }else{
+                element.put("scopeids",aa.getScopeids());
+            }
 
             listMap.add(element);
         }
@@ -224,8 +230,16 @@ public class ExternalEventController {
             }else {
                 element.put("QualifiedAttribute",es.getQualifiedAttribute());
                 element.put("Type",es.getType());
-                element.put("ListName",es.getListName());
-                element.put("ObejctName",es.getObejctName());
+                if(es.getListName()==null){
+                    element.put("ListName","联邦成员无此信息");
+                }else{
+                    element.put("ListName",es.getListName());
+                }
+                if (es.getObejctName()==null){
+                    element.put("ObejctName","联邦成员无此信息");
+                }else{
+                    element.put("ObejctName",es.getObejctName());
+                }
                 element.put("Scope",es.getScope());
                 element.put("id",es.getId());
             }

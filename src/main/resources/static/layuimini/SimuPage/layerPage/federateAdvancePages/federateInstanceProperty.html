@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>联邦对象表单</title>
+    <link type="text/css" rel="stylesheet" href="../../../layui/css/layui.css">
+    <script type="text/javascript" src="../../../layui/layui.js"></script>
+</head>
+<body>
+<div >
+
+        <fieldset class="layui-elem-field layui-field-title" style="width: 480px;margin-left: 10px;margin-right: 10px;margin-top: 10px">
+            <legend>实例属性初值设定</legend>
+            <table id="property" lay-filter="propertyTableFilter"></table>
+        </fieldset>
+
+    </div>
+<script>
+    //参数信息
+
+    layui.use(['jquery', 'layer','table'],function () {
+        let $ = layui.jquery;
+        let form = layui.form;
+        let table = layui.table;
+
+        // 获得属性
+        table.render({
+            elem:"#property",//elem绑定id属性值
+            url:"/federateInfo/getPropertyInfo",//后台数据接口
+            page: false,//开启分页
+            cols:[[
+                {field: 'name', title: '变化变量', fixed: 'left'}
+                ,{field:'type',title:'依赖变量'}
+                ,{field:'value',title:'参数初值',edit:true}
+            ]],
+        });
+
+        //edit属性，表头设置
+        table.on('edit(propertyTableFilter)',function (obj) {
+            //获取改变后的值
+            // console.log(obj.data["name"]+"||"+obj.data["value"]);
+
+            let value = obj.value;
+            //获得改变之前的值
+            let data = obj.data;
+            //得到修改的字段名
+            let field = obj.field;
+
+            //别名的上传
+            //定义json数据
+            let info = {
+                "name":obj.data["name"],
+                "value":obj.data["value"]
+            }
+
+
+            $.ajax({
+                url:"/federateInfo/setInitialInstancePropertyValue",
+                type:"POST",
+                dataType: 'json',
+                data:JSON.stringify(info),
+                contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+                success:function(result){
+                }
+            });
+        });
+    });
+
+
+</script>
+</body>
+</html>

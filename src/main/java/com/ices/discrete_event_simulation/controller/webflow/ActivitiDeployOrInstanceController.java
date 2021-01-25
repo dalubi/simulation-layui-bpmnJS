@@ -7,6 +7,8 @@ import com.ices.discrete_event_simulation.mapper.TaskMapper;
 import com.ices.discrete_event_simulation.util.AjaxResponse;
 import com.ices.discrete_event_simulation.util.AjaxTableResponse;
 import com.ices.discrete_event_simulation.util.GlobalConfig;
+import org.activiti.api.process.model.builders.ProcessPayloadBuilder;
+import org.activiti.api.process.runtime.ProcessRuntime;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
@@ -46,6 +48,8 @@ public class ActivitiDeployOrInstanceController {
     @Autowired
     private TaskService taskService;
 
+    @Autowired
+    private ProcessRuntime processRuntime;
 
     //获取流程bpmn的部署信息
     @RequestMapping(value = "/activiti/getAllBPMNDeploy" , method = RequestMethod.GET)
@@ -109,18 +113,14 @@ public class ActivitiDeployOrInstanceController {
     @ResponseBody
     public AjaxResponse uploadBPMNFile(@RequestBody JSONObject json) throws FileNotFoundException {
         String federate = json.get("federate").toString();
-        String fileName = processespath+federate+".bpmn";
-        File BpmnFile = new File(fileName);
-
-        //读取文件内容
-        FileInputStream fileInputStream = new FileInputStream(BpmnFile);
+        String filename = "processes/"+federate+".bpmn";
 
         try{
             Deployment deployment = repositoryService.createDeployment()
-                    .addInputStream(federate,fileInputStream)
+                    .addClasspathResource(filename)
                     .name(federate)
                     .deploy();
-            runtimeService.startProcessInstanceByKey(federate);
+            ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(federate);
 
             return AjaxResponse.AjaxData(GlobalConfig.ResponseCode.SUCCESS.getCode(),
                     GlobalConfig.ResponseCode.SUCCESS.getDesc(), deployment.getId()+";"+deployment.getId());

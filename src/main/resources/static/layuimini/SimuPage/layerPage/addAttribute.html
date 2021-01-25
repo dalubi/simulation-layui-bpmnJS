@@ -85,7 +85,7 @@
                 let option = '';
                 for(let i=0;i<resJSON.obj.length;i++){
                     //循环获取返回值，并组装成html代码
-                    option +="<option value='"+resJSON.obj[i]["id"]+"'>"+resJSON.obj[i]["variableName"]+"</option>";
+                    option +="<option value='"+resJSON.obj[i]["variableName"]+"'>"+resJSON.obj[i]["variableName"]+"</option>";
                 }
                 $("#attribute_nameId").html("");
                 $("#attribute_nameId").append(option);

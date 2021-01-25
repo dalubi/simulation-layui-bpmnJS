@@ -9,14 +9,14 @@
 <body>
 <div style="margin-left: 20px ; margin-top: 20px ;width: 1200px">
     <fieldset class="layui-elem-field">
-        <legend style="font-size: 40px">初始化仿真联邦基本参数</legend>
+        <legend style="font-size: 40px">离散事件仿真参数设置（一）</legend>
 
         <div>
             <fieldset class="layui-elem-field layui-field-title">
                 <div class="layui-field-box">
                     <div >
                         <fieldset class="layui-elem-field layui-field-title">
-                            <legend>仿真联邦属性设置</legend>
+                            <legend>联邦成员初始属性设置</legend>
 
                             <table id="FederateInfo" lay-filter="FederateInfoTableFilter">
                             </table>
@@ -43,7 +43,7 @@
 
         <div >
             <fieldset class="layui-elem-field layui-field-title">
-                <legend>仿真对象信息的设置</legend>
+                <legend>联邦成员对象信息的设计</legend>
                 <div class="layui-field-box">
 
                     <table id="federateObject" lay-filter="FederateObjectTableFilter">
@@ -53,10 +53,13 @@
                     <script type="text/html" id="FederateObjectToolBar">
                         <div class="layui-btn-container">
                             <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="getFederateObjectData">
-                                更新所有仿真对象信息
+                                更新所有联邦成员对象信息
                             </button>
                             <button class="layui-btn layui-btn-sm layui-btn-warm" lay-event="addFederateObjectData">
-                                添加一个仿真对象信息
+                                添加联邦成员对象
+                            </button>
+                            <button class="layui-btn layui-btn-sm layui-btn-warm" lay-event="addFederateObjectInstanceData">
+                                添加联邦成员实例
                             </button>
                         </div>
                     </script>
@@ -73,7 +76,7 @@
 
         <div >
             <fieldset class="layui-elem-field layui-field-title">
-                <legend>仿真全局变量设置</legend>
+                <legend>联邦成员变量设计</legend>
                 <div class="layui-field-box">
 
                     <table id="FederateVariable" lay-filter="FederateVariableTableFilter">
@@ -83,10 +86,10 @@
                     <script type="text/html" id="FederateVariableToolBar">
                         <div class="layui-btn-container">
                             <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="getFederateVariableData">
-                                更新所有仿真全局变量信息
+                                更新所有联邦成员变量信息
                             </button>
                             <button class="layui-btn layui-btn-sm layui-btn-warm" lay-event="addFederateVariableData">
-                                添加一个仿真全局变量信息
+                                添加联邦成员变量信息
                             </button>
                         </div>
                     </script>
@@ -225,7 +228,16 @@
                             type:2,
                             title:"添加联邦参数",
                             area:['500px','400px'],
-                            content:["layerPage/federateObject.html",'yes']
+                            content:["layerPage/federateBasicPages/federateObject.html",'yes']
+                        });
+                        break;
+
+                    case "addFederateObjectInstanceData":
+                        layer.open({
+                            type:2,
+                            title:"添加联邦参数",
+                            area:['500px','400px'],
+                            content:["layerPage/federateBasicPages/federateObjectInstance.html",'yes']
                         });
                         break;
                 }
@@ -308,7 +320,7 @@
                            type:2,
                            title:"添加联邦参数",
                            area:['500px','400px'],
-                           content:["layerPage/federateVariable.html",'yes']
+                           content:["layerPage/federateBasicPages/federateVariable.html",'yes']
                        });
                        break;
                 }

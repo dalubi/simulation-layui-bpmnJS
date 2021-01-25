@@ -3,6 +3,7 @@ package com.ices.discrete_event_simulation.controller.webflow;
 import com.alibaba.fastjson.JSONObject;
 import com.ices.discrete_event_simulation.entity.*;
 import com.ices.discrete_event_simulation.mapper.*;
+import com.ices.discrete_event_simulation.pojo.propertyPOJO;
 import com.ices.discrete_event_simulation.util.AjaxResponse;
 import com.ices.discrete_event_simulation.util.AjaxTableResponse;
 import com.ices.discrete_event_simulation.util.GlobalConfig;
@@ -31,7 +32,7 @@ public class federateInfoController {
     @Autowired
     StartInformationMapper startInformationMapper;
 
-    // 获得federate的信息
+    //获得federate的信息
     @RequestMapping(value = "/federateInfo/getAllFederateInfos" , method = RequestMethod.GET)
     @ResponseBody
     public AjaxTableResponse getAllFederateInfos(){
@@ -58,7 +59,6 @@ public class federateInfoController {
                 listMap.size(),listMap);
     }
 
-
     //添加联邦成员初始化信息
     @RequestMapping(value = "/federateInfo/addFederateInitialize" ,method = RequestMethod.POST)
     @ResponseBody
@@ -67,13 +67,10 @@ public class federateInfoController {
         String firstTask = json.get("firstTask").toString();
 
         StartInformation start=new StartInformation();
-
         start.setFederateId(globalController.getFederateId());
         start.setFirstTask(Integer.parseInt(firstTask));
         start.setIsFirst(Integer.parseInt(isFirst));
-
         startInformationMapper.insert2(start);
-
         return AjaxResponse.AjaxData(GlobalConfig.ResponseCode.SUCCESS.getCode(),
                 GlobalConfig.ResponseCode.SUCCESS.getDesc()
                 ,"成功添加一条参数信息");
@@ -90,13 +87,10 @@ public class federateInfoController {
     @ResponseBody
     public AjaxTableResponse getAllFederateObjectsInfo(){
         List<HashMap<String, Object>> listMap= new ArrayList<HashMap<String, Object>>();
-
         List<FederateObject> federateObjectList = federateObjectMapper.selectList(null);
-
         for(int i=0;i<federateObjectList.size();i++){
             HashMap<String,Object> element = new HashMap<>();
             element.put("objectName",federateObjectList.get(i).getObjectName());
-
             //把参数名和参数类型对应起来，拼接成句子返回
             String parameterNames = federateObjectList.get(i).getParameterNames();
             String parameterTypes = federateObjectList.get(i).getParameterTypes();
@@ -112,21 +106,62 @@ public class federateInfoController {
             element.put("federate",federateObjectList.get(i).getFederate());
             listMap.add(element);
         }
-
         return AjaxTableResponse.AjaxData(GlobalConfig.ResponseCode.SUCCESS.getCode(),
                 GlobalConfig.ResponseCode.SUCCESS.getDesc(),
                 listMap.size(),listMap);
     }
 
-
     //添加一条FederateObject信息
     @RequestMapping(value = "/federateInfo/federateobject",method = RequestMethod.POST)
     @ResponseBody
     public AjaxResponse postFederateObjct(@RequestParam("objectName")String objectName,
-                                    @RequestParam("InitialId")String InitialId,
                                     @RequestParam("parameterName")String parameterNames,
                                     @RequestParam("parameterType")String parameterTypes,
                                     @RequestParam("federate")String federate){
+        Map<String,Object> columnMap = new HashMap<>();
+        columnMap.put("federateName",federate);
+        List<Federate> federateList = federateMapper.selectByMap(columnMap);
+        if(federateList.size()==0){
+            //异常
+            return AjaxResponse.AjaxData(GlobalConfig.ResponseCode.SUCCESS.getCode(),
+                    GlobalConfig.ResponseCode.SUCCESS.getDesc()
+                    ,"并未找到对应Federate");
+        }else{
+            //正常操作
+            int curFederateId = federateList.get(0).getFederateId();
+            String s = startInformationMapper.queryFederateObjectsById(curFederateId);
+            List<Integer> curlistId=new ArrayList<>();
+            if(s!=null){
+                curlistId.addAll(generateUtils.extract(s));
+            }
+            FederateObject federateobject = new FederateObject();
+            federateobject.setObjectName(objectName);
+            federateobject.setParameterNames(parameterNames);
+            federateobject.setParameterTypes(parameterTypes);
+            federateobject.setFederate(federate);
+            federateObjectMapper.insert(federateobject);
+            int maxId = federateObjectMapper.maxId();
+            curlistId.add(maxId);
+            StringBuilder sb=new StringBuilder();
+            for(Integer id:curlistId){
+                sb.append(id);
+                sb.append(",");
+            }
+            startInformationMapper.updateFederateObjectByFederateId(curFederateId,sb.toString());
+            return AjaxResponse.AjaxData(GlobalConfig.ResponseCode.SUCCESS.getCode(),
+                    GlobalConfig.ResponseCode.SUCCESS.getDesc()
+                    ,"成功添加一条仿真参数信息");
+        }
+    }
+
+    //添加一条FederateObjectInstance信息
+    @RequestMapping(value = "/federateInfo/federateobjectinstance",method = RequestMethod.POST)
+    @ResponseBody
+    public AjaxResponse postFederateObjctInstance(@RequestParam("objectName")String objectName,
+                                          @RequestParam("InitialId")String InitialId,
+                                          @RequestParam("parameterName")String parameterNames,
+                                          @RequestParam("parameterType")String parameterTypes,
+                                          @RequestParam("federate")String federate){
 
         Map<String,Object> columnMap = new HashMap<>();
         columnMap.put("federateName",federate);
@@ -163,8 +198,8 @@ public class federateInfoController {
                     GlobalConfig.ResponseCode.SUCCESS.getDesc()
                     ,"成功添加一条仿真参数信息");
         }
-
     }
+
 
     //删除一条FederateObject信息
     @RequestMapping(value = "/federateInfo/deleteFederateObject" ,method = RequestMethod.POST)
@@ -190,10 +225,8 @@ public class federateInfoController {
     @ResponseBody
     public AjaxTableResponse getAllFederateVariableInfo(){
         List<HashMap<String, Object>> listMap= new ArrayList<HashMap<String, Object>>();
-
-
         //这里写startinformation
-        
+
         List<FederateVariable> federateVariableList = federateVariableMapper.selectList(null);
 
         for(int i=0;i<federateVariableList.size();i++){
@@ -444,7 +477,6 @@ public class federateInfoController {
             List<Federate> federateList = federateMapper.selectByMap(columnMap);
             String federateName = federateList.get(0).getFederateName();
 
-
             //初步任务
             String firstTaskId = isNull(isNull2(si.getFirstTask()));
 
@@ -467,6 +499,147 @@ public class federateInfoController {
                 listMap.size(),listMap);
     }
 
+
+    //initialInstanceId部分
+    @Autowired
+    InitialinstancetaskMapper initialinstancetaskMapper;
+
+    //添加初始化实例
+    @RequestMapping(value = "/federateInfo/addFederateInitialInstance" , method = RequestMethod.POST)
+    @ResponseBody
+    public  AjaxResponse addFederateInstance(@RequestParam("InstanceNumber")String InstanceNumber,
+                                             @RequestParam("listName")String listName,
+                                             @RequestParam("instanceType")String instanceType){
+        Initialinstancetask ii = new Initialinstancetask();
+        ii.setInstancenum(Integer.parseInt(InstanceNumber));
+        ii.setInstancetype(instanceType);
+        ii.setListname(listName);
+
+        initialinstancetaskMapper.insert(ii);
+        return  AjaxResponse.AjaxData(GlobalConfig.ResponseCode.SUCCESS.getCode(),
+                GlobalConfig.ResponseCode.SUCCESS.getDesc(),
+                "成功");
+    }
+
+    //获取初始化实例信息
+    @RequestMapping(value = "/federateInfo/getAllFederateInitialInstance" , method = RequestMethod.GET)
+    @ResponseBody
+    public AjaxTableResponse getAllFederateInitialInstance(){
+        List<HashMap<String, Object>> listMap= new ArrayList<HashMap<String, Object>>();
+        List<Initialinstancetask> initialinstancetasks = initialinstancetaskMapper.selectList(null);
+
+        for(int i=0;i<initialinstancetasks.size();i++){
+            HashMap<String,Object> element = new HashMap<>();
+            Initialinstancetask ii = initialinstancetasks.get(i);
+            element.put("listName",ii.getListname());
+            element.put("instanceType",ii.getInstancetype());
+            element.put("instanceNum",ii.getInstancenum());
+            element.put("id",ii.getId());
+            listMap.add(element);
+        }
+        return AjaxTableResponse.AjaxData(GlobalConfig.ResponseCode.SUCCESS.getCode(),
+                GlobalConfig.ResponseCode.SUCCESS.getDesc(),
+                listMap.size(),listMap);
+    }
+
+
+    private static String InitialInstanceTaskId;
+    //获取某个federateObject对应Id下所有属性和对应的类型
+    //获取所有的仿真列表信息
+    @RequestMapping(value = "/federateInfo/setInitialInstancetaskById" , method = RequestMethod.POST)
+    @ResponseBody
+    public  AjaxResponse getFederateObjectAttributeInfo(@RequestBody JSONObject json){
+        InitialInstanceTaskId = json.get("id").toString();
+        return  AjaxResponse.AjaxData(GlobalConfig.ResponseCode.SUCCESS.getCode(),
+                GlobalConfig.ResponseCode.SUCCESS.getDesc(),
+                "成功");
+    }
+
+    private List<propertyPOJO> propertyPOJOList = new ArrayList<>();
+
+    @RequestMapping(value = "/federateInfo/getPropertyInfo" , method = RequestMethod.GET)
+    @ResponseBody
+    public AjaxTableResponse getPropertyInfo(){
+        List<HashMap<String, Object>> listMap= new ArrayList<HashMap<String, Object>>();
+
+        //根据initialInstanceTaskId获得federateObject的类型
+        Map<String,Object> columnMap = new HashMap<>();
+        columnMap.put("id",InitialInstanceTaskId );
+        Initialinstancetask ii = initialinstancetaskMapper.selectByMap(columnMap).get(0);
+
+        Map<String,Object> columnMap2 = new HashMap<>();
+        columnMap2.put("objectName",ii.getInstancetype() );
+        FederateObject fo = federateObjectMapper.selectByMap(columnMap2).get(0);
+
+        String[] names = fo.getParameterNames().split(",");
+        String[] types = fo.getParameterTypes().split(",");
+        Integer initialId = fo.getInitialId();
+
+        if (initialId==null){
+
+        }else{
+            HashMap<String,Object> element = new HashMap<>();
+            element.put("name","startTime");
+            element.put("type","int");
+            HashMap<String,Object> element2 = new HashMap<>();
+            element2.put("name","endTime");
+            element2.put("type","int");
+            listMap.add(element);
+            listMap.add(element2);
+            propertyPOJOList.add(new propertyPOJO("startTime","int"));
+            propertyPOJOList.add(new propertyPOJO("endTime","int"));
+        }
+        for(int i=0;i<names.length;i++){
+            HashMap<String,Object> element = new HashMap<>();
+            element.put("name",names[i]);
+            element.put("type",types[i]);
+            listMap.add(element);
+            propertyPOJOList.add(new propertyPOJO(names[i],types[i]));
+        }
+        return  AjaxTableResponse.AjaxData(GlobalConfig.ResponseCode.SUCCESS.getCode(),
+                GlobalConfig.ResponseCode.SUCCESS.getDesc(),
+                listMap.size(),listMap);
+    }
+
+    private static int propertyCount=0;
+    //设置某个属性的初值
+    @RequestMapping(value = "/federateInfo/setInitialInstancePropertyValue" , method = RequestMethod.POST)
+    @ResponseBody
+    public  AjaxResponse setInitialInstancePropertyValue(@RequestBody JSONObject json){
+        String name = json.get("name").toString();
+        String value = json.get("value").toString();
+        //遍历propertyPOJOList，看名字对上了，就将value堆上去
+        for(propertyPOJO pp:propertyPOJOList){
+            if(pp.getName().equals(name)){
+                pp.setValue(value);
+                propertyCount++;
+            }
+        }
+        if(propertyCount==propertyPOJOList.size()){
+            StringBuilder propertyNames = new StringBuilder();
+            StringBuilder propertyTypes = new StringBuilder();
+            StringBuilder propertyValues = new StringBuilder();
+            for(propertyPOJO pp:propertyPOJOList){
+                propertyNames.append(pp.getName()+",");
+                propertyTypes.append(pp.getType()+",");
+                propertyValues.append(pp.getValue()+",");
+            }
+            Initialinstancetask ii = new Initialinstancetask();
+            ii.setId(Integer.parseInt(InitialInstanceTaskId));
+            ii.setPropertynames(propertyNames.toString());
+            ii.setPropertytypes(propertyTypes.toString());
+            ii.setPropertyvalues(propertyValues.toString());
+            initialinstancetaskMapper.updateById(ii);
+            propertyCount=0;
+            propertyPOJOList.clear();
+        }
+        return  AjaxResponse.AjaxData(GlobalConfig.ResponseCode.SUCCESS.getCode(),
+                GlobalConfig.ResponseCode.SUCCESS.getDesc(),
+                "成功");
+    }
+
+
+
     private String isNull(String s){
         if(s.equals("")||s==""){
             return "null";
@@ -481,4 +654,5 @@ public class federateInfoController {
             return o.toString();
         }
     }
+
 }

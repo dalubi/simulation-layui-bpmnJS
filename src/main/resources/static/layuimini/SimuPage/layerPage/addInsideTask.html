@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加一个外部事件</title>
+    <link type="text/css" rel="stylesheet" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+</head>
+<body>
+<div >
+
+    <fieldset class="layui-elem-field layui-field-title" style="width: 480px;margin-left: 10px;margin-right: 10px;margin-top: 10px">
+        <legend>添加内部任务信息</legend>
+        <br />
+
+        <form class="layui-form" id="formid" action="">
+            <br />
+            <div class="layui-form-item ">
+                <label class="layui-form-label" style="width: 200px">内部任务编号：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="insidetaskId" required  lay-verify="required" placeholder="不重复情况下自行设定" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width: 200px">内部任务描述：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="information" required  lay-verify="required" placeholder="对内部任务完成事件的描述" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <br />
+            <div class="layui-form-item" style="margin-left: 140px">
+                <div class="layui-input-block">
+                    <button class="layui-btn layui-btn-normal" lay-submit lay-filter="formDemo">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+
+
+    </fieldset>
+
+
+
+</div>
+<script>
+    layui.use(['jquery', 'layer','table'],function () {
+        let $ = layui.jquery;
+        let form = layui.form;
+
+
+
+        form.on('submit(formDemo)', function(data){
+            alert(1);
+            var formId = "#formid";
+            let Data = $(formId).serializeArray();
+            $.ajax({
+                url:"/insideTask/addInsideTask",
+                type:"post",
+                dataType:"text",
+                data: Data,
+                success:function(result){
+                }
+            });
+        });
+
+    });
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>联邦对象表单</title>
+    <link type="text/css" rel="stylesheet" href="../../../layui/css/layui.css">
+    <script type="text/javascript" src="../../../layui/layui.js"></script>
+</head>
+<body>
+<div >
+
+        <fieldset class="layui-elem-field layui-field-title" style="width: 480px;margin-left: 10px;margin-right: 10px;margin-top: 10px">
+            <legend>联邦成员实例初始化</legend>
+            <br />
+
+            <form class="layui-form" id="formid" action="">
+<!--                InstanceNumber-->
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 150px">设定实例数量：</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="InstanceNumber" required  lay-verify="required" placeholder="仿真实例的数量" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+<!--                listName-->
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 150px">实例加入的队列：</label>
+                    <div class="layui-input-inline">
+                        <select name="listName" lay-verify="required" lay-filter="listNameFilter" id="listNameId">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+
+<!--                instanceId-->
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 150px">加入队列的实例：</label>
+                    <div class="layui-input-inline">
+                        <select name="instanceType" lay-verify="required" lay-filter="instanceidFilter" id="instanceidId">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <br />
+                <div class="layui-inline">
+                    <button type="button" class="layui-btn layui-btn-normal"  lay-submit lay-filter="formDemo" style="margin-left: 350px">提交</button>
+                </div>
+            </form>
+        </fieldset>
+
+    <div id="insertPos"></div>
+
+    </div>
+<script>
+    //参数信息
+
+    layui.use(['jquery', 'layer','table'],function () {
+        let $ = layui.jquery;
+        let form = layui.form;
+        let table = layui.table;
+
+        //获取所有队列名称
+        $.ajax({
+            url:"/selectInfo/getAllFederateLists",
+            type:"POST",
+            dataType: 'json',
+            data:"",
+            contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+            success:function(result){
+                //把obj类型转化成json类型的字符串
+                let resJSONStr = JSON.stringify(result);
+                let resJSON = JSON.parse(resJSONStr);
+
+                let option = '';
+                for(let i=0;i<resJSON.obj.length;i++){
+                    //循环获取返回值，并组装成html代码
+                    option +="<option value='"+resJSON.obj[i]["listName"]+"'>"+resJSON.obj[i]["listName"]+"</option>";
+                }
+                $("#listNameId").html("");
+                $("#listNameId").append(option);
+                form.render();
+            }
+        });
+
+        //获得实例
+        $.ajax({
+            url:"/selectInfo/getAllFederateObjectsWithId",
+            type:"POST",
+            dataType: 'json',
+            data:"",
+            contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+            success:function(result){
+                //把obj类型转化成json类型的字符串
+                let resJSONStr = JSON.stringify(result);
+                let resJSON = JSON.parse(resJSONStr);
+
+                let option = '';
+                for(let i=0;i<resJSON.obj.length;i++){
+                    //循环获取返回值，并组装成html代码
+                    option +="<option value='"+resJSON.obj[i]["objectName"]+"'>"+resJSON.obj[i]["objectName"]+"</option>";
+                }
+                $("#instanceidId").html("");
+                $("#instanceidId").append(option);
+                form.render();
+
+            }
+        });
+
+
+        form.on('submit(formDemo)', function(data){
+            var formId = "#formid";
+            var startInfoData = $(formId).serializeArray();
+            $.ajax({
+                url:"/federateInfo/addFederateInitialInstance",
+                type:"post",
+                dataType:"text",
+                data: startInfoData,
+                success:function(result){
+                }
+            });
+        });
+    });
+
+
+</script>
+</body>
+</html>

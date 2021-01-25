@@ -3,38 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <title>联邦对象表单</title>
-    <link type="text/css" rel="stylesheet" href="../../layui/css/layui.css">
-    <script type="text/javascript" src="../../layui/layui.js"></script>
+    <link type="text/css" rel="stylesheet" href="../../../layui/css/layui.css">
+    <script type="text/javascript" src="../../../layui/layui.js"></script>
 </head>
 <body>
 <div >
 
         <fieldset class="layui-elem-field layui-field-title" style="width: 480px;margin-left: 10px;margin-right: 10px;margin-top: 10px">
-            <legend>联邦列表表单</legend>
-            <br />
-
-
-            <table id="federateObject" lay-filter="FederateObjectTableFilter">
-            </table>
-
+            <legend>联邦成员队列</legend>
             <br />
 
             <form class="layui-form" id="formid" action="">
                 <div class="layui-form-item">
-                    <label class="layui-form-label" style="width: 100px">列表名称：</label>
+                    <label class="layui-form-label" style="width: 100px">队列名称：</label>
                     <div class="layui-input-inline">
                         <input type="text" name="listName" required  lay-verify="required" placeholder="仿真列表的名称" autocomplete="off" class="layui-input">
                     </div>
                 </div>
                 <div class="layui-form-item">
-                    <label class="layui-form-label" style="width: 100px">元素编号：</label>
+                    <label class="layui-form-label" style="width: 100px">队列元素类型：</label>
                     <div class="layui-input-inline">
-                        <input type="text" name="objectName" required  lay-verify="required" placeholder="填写上表中的元素编号" autocomplete="off" class="layui-input">
+                        <select name="objectName" lay-verify="required" lay-filter="federateFilter" id="objectNameId">
+                            <option value=""></option>
+                        </select>
                     </div>
                 </div>
 
                 <div class="layui-form-item">
-                    <label class="layui-form-label" style="width: 100px">联邦成员名：</label>
+                    <label class="layui-form-label" style="width: 100px">联邦成员名称：</label>
                     <div class="layui-input-inline">
                         <select name="federate" lay-verify="required" lay-filter="federateFilter" id="federateId">
                             <option value=""></option>
@@ -58,18 +54,31 @@
     layui.use(['jquery', 'layer','table'],function () {
         let $ = layui.jquery;
         let form = layui.form;
-        let table = layui.table;
-        table.render({
-            elem:"#federateObject",//elem绑定id属性值
-            url:"/federateInfo/getAllFederateObjectsInfo",//后台数据接口
-            page: false ,//开启分页
-            cols:[[
-                {field: 'objectId', title: '对象编号', fixed: 'left'}
-                ,{field:'objectName',title:'对象名称'}
-                ,{field: 'objectDescription', title: '对象信息描述'}
-            ]],
+
+        //获取federateObject名称
+        $.ajax({
+            url:"/selectInfo/getAllFederateObjects",
+            type:"POST",
+            dataType: 'json',
+            data:"",
+            contentType: "application/json;charset=utf-8",//发送给后台数据的格式
+            success:function(result){
+                //把obj类型转化成json类型的字符串
+                let resJSONStr = JSON.stringify(result);
+                let resJSON = JSON.parse(resJSONStr);
+
+                let option = '';
+                for(let i=0;i<resJSON.obj.length;i++){
+                    //循环获取返回值，并组装成html代码
+                    option +="<option value='"+resJSON.obj[i]["objectName"]+"'>"+resJSON.obj[i]["objectName"]+"</option>";
+                }
+                $("#objectNameId").html("");
+                $("#objectNameId").append(option);
+                form.render();
+            }
         });
 
+        //获取联邦成员名称
         $.ajax({
             url:"/federateObjectPage/getAllFederateNames",
             type:"POST",
@@ -91,7 +100,6 @@
                 form.render();
             }
         });
-
 
 
         form.on('submit(formDemo)', function(data){
